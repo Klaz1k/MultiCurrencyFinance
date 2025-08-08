@@ -1,0 +1,3 @@
+class IncorrectResultUsageError extends Error {
+  
+}
