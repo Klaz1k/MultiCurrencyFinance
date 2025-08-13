@@ -16,7 +16,7 @@ class Balance {
   double add(BalanceAmount amount) {
     this.balanceQueue.add(amount);
 
-    return getCurrentBalance();
+    return amount.amount;
   }
   
   List<BalanceAmount> reduce(double amount) {

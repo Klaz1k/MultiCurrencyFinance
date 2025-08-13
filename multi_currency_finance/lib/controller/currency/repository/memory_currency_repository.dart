@@ -1,0 +1,41 @@
+import 'package:multi_currency_finance/model/common/result/result.dart';
+import 'package:multi_currency_finance/model/currency/currency.dart';
+import 'package:multi_currency_finance/model/currency/errors/currency_not_found_error.dart';
+import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
+
+class MemoryCurrencyRepository implements ICurrencyRepository {
+  List<Currency> currencyList = [];
+  
+  @override
+  Future<Result<List<Currency>>> findAll(int page, int perPage) async {
+    int start = (page - 1)*perPage;
+    int end = start + perPage;
+
+    if (end >= this.currencyList.length) end = this.currencyList.length - 1;
+
+    return Result.success(this.currencyList.getRange(start, end).toList());
+  }
+
+  @override
+  Future<Result<Currency>> findById(String id) async {
+    for (Currency cur in this.currencyList) {
+      if (cur.id == id) {
+        return Result.success(cur);
+      }
+    }
+
+    return Result.failure(CurrencyNotFoundError());
+  }
+
+  @override
+  Future<Result<String>> save(Currency currency) async {
+    for (Currency cur in this.currencyList) {
+      if (cur.id == currency.id) {
+
+        return Result.success("Currency Saved");
+      }
+    }
+    this.currencyList.add(currency);
+    return Result.success("Currency Added & Saved");
+  }
+}
