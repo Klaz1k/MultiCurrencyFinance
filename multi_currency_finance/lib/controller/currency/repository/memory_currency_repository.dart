@@ -4,14 +4,17 @@ import 'package:multi_currency_finance/model/currency/errors/currency_not_found_
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 
 class MemoryCurrencyRepository implements ICurrencyRepository {
-  List<Currency> currencyList = [];
+  // List<Currency> currencyList = [];
+  List<Currency> currencyList = [Currency("1", "TestCurrency", "Tst", "<>")];
   
   @override
-  Future<Result<List<Currency>>> findAll(int page, int perPage) async {
-    int start = (page - 1)*perPage;
+  Future<Result<List<Currency>>> findAll(int? page, int? perPage) async {
+    if (page == null || perPage == null) return Result.success(this.currencyList); 
+
+    int start = (page)*perPage;
     int end = start + perPage;
 
-    if (end >= this.currencyList.length) end = this.currencyList.length - 1;
+    if (end >= this.currencyList.length) end = this.currencyList.length;
 
     return Result.success(this.currencyList.getRange(start, end).toList());
   }

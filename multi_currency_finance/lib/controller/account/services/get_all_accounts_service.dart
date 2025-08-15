@@ -25,27 +25,28 @@ class GetAllAccountsService implements IService<GetAllAccountsRequest, GetAllAcc
       if (!currencyResult.isError) currencySymbol = currencyResult.value.symbol;
 
       accountDataList.add(AccountData(
-        acc.id,
-        acc.name,
-        acc.description,
-        currencySymbol,
-        acc.getTotalBalance()
+        acc.id, 
+        acc.name, 
+        acc.description, 
+        currencySymbol, 
+        acc.balance
       ));
     }
 
-    return Result.success(GetAllAccountsResponse(accountDataList));
+    return Result.success(GetAllAccountsResponse(accounts: accountDataList));
   }
 }
 
 class GetAllAccountsRequest {
-  late final int page;
-  late final int perPage;
+  late final int? page;
+  late final int? perPage;
 
-  GetAllAccountsRequest(this.page, this.perPage);
+  GetAllAccountsRequest.pag(this.page, this.perPage);
+  GetAllAccountsRequest();
 }
 
 class GetAllAccountsResponse {
   late List<AccountData> accounts;
 
-  GetAllAccountsResponse(this.accounts);
+  GetAllAccountsResponse({required this.accounts});
 }

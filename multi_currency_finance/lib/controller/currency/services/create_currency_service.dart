@@ -29,21 +29,15 @@ class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCur
 }
 
 class CreateCurrencyRequest {
-  late final String _currencyName;
-  late final String _currencyAbbreviation;
-  late final String _currencySymbol;
+  late final String currencyName;
+  late final String currencyAbbreviation;
+  late final String currencySymbol;
 
-  String get currencyName => this._currencyName;
-  String get currencyAbbreviation => this._currencyAbbreviation;
-  String get currencySymbol => this._currencySymbol;
-
-  CreateCurrencyRequest(this._currencyName, this._currencyAbbreviation, this._currencySymbol);
+  CreateCurrencyRequest(this.currencyName, this.currencyAbbreviation, this.currencySymbol);
 }
 
 class CreateCurrencyResponse {
-  late final String _currencyId;
+  late final String currencyId;
 
-  String get currencyId => this._currencyId;
-
-  CreateCurrencyResponse(this._currencyId);
+  CreateCurrencyResponse(this.currencyId);
 }

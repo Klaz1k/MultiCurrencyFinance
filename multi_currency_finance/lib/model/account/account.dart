@@ -18,6 +18,8 @@ class Account {
 
   String get currencyId => this._currencyId;
 
+  Balance get balance => Balance(this._balance.balanceQueue);
+
   Account(this._id, this._name, this._description, this._currencyId, this._balance);
 
   List<BalanceAmount> withdraw(double amount) {

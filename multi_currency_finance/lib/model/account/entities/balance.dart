@@ -1,20 +1,36 @@
 import 'package:multi_currency_finance/model/account/entities/balance_amount.dart';
 
 class Balance {
-  List<BalanceAmount> balanceQueue;
+  late final List<BalanceAmount> _balanceQueue;
 
-  Balance({required this.balanceQueue});
+  List<BalanceAmount> get balanceQueue {
+    List<BalanceAmount> list = [];
+    for (BalanceAmount entry in this._balanceQueue) {
+      list.add(BalanceAmount(amount: entry.amount, exchangeRate: entry.exchangeRate));
+    }
+    return list;
+  }
+
+  Balance(this._balanceQueue);
 
   double getCurrentBalance() {
     double currentBalance = 0;
-    for (BalanceAmount subBalance in this.balanceQueue) {
+    for (BalanceAmount subBalance in this._balanceQueue) {
       currentBalance += subBalance.amount;
     }
     return currentBalance;
   }
 
+double exchangedBalance() {
+  double exchangedBalance = 0;
+  for (BalanceAmount subBalance in this._balanceQueue) {
+    exchangedBalance += (subBalance.amount/subBalance.exchangeRate);
+  }
+  return exchangedBalance;
+}
+
   double add(BalanceAmount amount) {
-    this.balanceQueue.add(amount);
+    this._balanceQueue.add(amount);
 
     return amount.amount;
   }
@@ -23,14 +39,14 @@ class Balance {
     List<BalanceAmount> returnList = [];
     double remainder = amount;
 
-    for (BalanceAmount subBalance in this.balanceQueue) {
+    for (BalanceAmount subBalance in this._balanceQueue) {
       var reduceResponse = subBalance.reduce(remainder);
 
       returnList.add(reduceResponse.balanceSpent);
       if (reduceResponse.remainder <= 0) {
         break;
       }
-      this.balanceQueue.remove(subBalance);
+      this._balanceQueue.remove(subBalance);
     }
 
     return returnList;

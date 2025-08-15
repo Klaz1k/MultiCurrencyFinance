@@ -26,7 +26,7 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
       params.accountName,
       params.description,
       currencyResult.value.id,
-      Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate)])
+      Balance([BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate)])
     );
 
     final saveResult = await this._accountRepository.save(newAccount);
