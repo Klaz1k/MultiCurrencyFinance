@@ -35,10 +35,10 @@ class MemoryCurrencyRepository implements ICurrencyRepository {
     for (Currency cur in this.currencyList) {
       if (cur.id == currency.id) {
 
-        return Result.success("Currency Saved");
+        return Result.success(cur.id);
       }
     }
     this.currencyList.add(currency);
-    return Result.success("Currency Added & Saved");
+    return Result.success(currency.id);
   }
 }

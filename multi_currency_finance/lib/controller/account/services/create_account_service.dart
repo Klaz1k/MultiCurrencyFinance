@@ -21,19 +21,19 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
     
     final uuidGenerator = UuidGenerator.instance;
 
-    final Account newAccount = Account(
-      uuidGenerator.v4(),
-      params.accountName,
-      params.description,
-      currencyResult.value.id,
-      Balance([BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate)])
+    final saveResult = await this._accountRepository.save(
+      Account(
+        uuidGenerator.v4(),
+        params.accountName,
+        params.description,
+        currencyResult.value.id,
+        Balance([BalanceAmount(params.amount, params.exchangeRate)])
+      )
     );
-
-    final saveResult = await this._accountRepository.save(newAccount);
 
     if (saveResult.isError) return Result.failure(saveResult.error);
 
-    return Result.success(CreateAccountResponse(newAccount.id));
+    return Result.success(CreateAccountResponse(saveResult.value));
   }
 
 }

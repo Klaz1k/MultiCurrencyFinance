@@ -13,18 +13,18 @@ class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCur
   Future<Result<CreateCurrencyResponse>> execute(CreateCurrencyRequest params) async {
     final uuidGenerator = UuidGenerator.instance;
 
-    final Currency newCurrency = Currency(
-      uuidGenerator.v4(),
-      params.currencyName,
-      params.currencyAbbreviation,
-      params.currencySymbol
+    final saveResult = await this._currencyRepository.save(
+      Currency(
+        uuidGenerator.v4(),
+        params.currencyName,
+        params.currencyAbbreviation,
+        params.currencySymbol
+      )
     );
-
-    final saveResult = await this._currencyRepository.save(newCurrency);
 
     if (saveResult.isError) return Result.failure(saveResult.error);
 
-    return Result.success(CreateCurrencyResponse(newCurrency.id));
+    return Result.success(CreateCurrencyResponse(saveResult.value));
   }
 }
 
