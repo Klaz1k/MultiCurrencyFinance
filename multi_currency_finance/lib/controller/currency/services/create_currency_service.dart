@@ -7,7 +7,8 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCurrencyResponse> {
   late final ICurrencyRepository _currencyRepository;
 
-  CreateCurrencyService(this._currencyRepository);
+  CreateCurrencyService({required ICurrencyRepository currencyRepository}) :
+    this._currencyRepository = currencyRepository;
 
   @override
   Future<Result<CreateCurrencyResponse>> execute(CreateCurrencyRequest params) async {
@@ -15,16 +16,16 @@ class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCur
 
     final saveResult = await this._currencyRepository.save(
       Currency(
-        uuidGenerator.v4(),
-        params.currencyName,
-        params.currencyAbbreviation,
-        params.currencySymbol
+        id: uuidGenerator.v4(),
+        name: params.currencyName,
+        abbreviation: params.currencyAbbreviation,
+        symbol: params.currencySymbol
       )
     );
 
     if (saveResult.isError) return Result.failure(saveResult.error);
 
-    return Result.success(CreateCurrencyResponse(saveResult.value));
+    return Result.success(CreateCurrencyResponse(currencyId: saveResult.value));
   }
 }
 
@@ -33,11 +34,11 @@ class CreateCurrencyRequest {
   late final String currencyAbbreviation;
   late final String currencySymbol;
 
-  CreateCurrencyRequest(this.currencyName, this.currencyAbbreviation, this.currencySymbol);
+  CreateCurrencyRequest({required this.currencyName, required this.currencyAbbreviation, required this.currencySymbol});
 }
 
 class CreateCurrencyResponse {
   late final String currencyId;
 
-  CreateCurrencyResponse(this.currencyId);
+  CreateCurrencyResponse({required this.currencyId});
 }

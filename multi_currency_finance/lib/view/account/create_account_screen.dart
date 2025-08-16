@@ -37,8 +37,11 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
   @override
   void initState() {
     super.initState();
-    this._getAllCurrenciesService = GetAllCurrenciesService(this._currencyRepository);
-    this._createAccountService = CreateAccountService(this._accountRepository, this._currencyRepository); 
+    this._getAllCurrenciesService = GetAllCurrenciesService(currencyRepository: this._currencyRepository);
+    this._createAccountService = CreateAccountService(
+      accountRepository: this._accountRepository,
+      currencyRepository: this._currencyRepository
+    ); 
 
     _fetchCurrencies();
   }
@@ -75,11 +78,11 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     if (_formKey.currentState!.validate()) {
       this._createAccountService.execute(
         CreateAccountRequest(
-          _accountNameController.text, 
-          _selectedCurrency!.id, 
-          double.parse(_initialAmountController.text), 
-          double.parse(_exchangeRateController.text), 
-          _descriptionController.text.isEmpty ? null : _descriptionController.text
+          accountName: _accountNameController.text, 
+          currencyId: _selectedCurrency!.id, 
+          amount: double.parse(_initialAmountController.text), 
+          exchangeRate: double.parse(_exchangeRateController.text), 
+          description: _descriptionController.text.isEmpty ? null : _descriptionController.text
         )
       );
 

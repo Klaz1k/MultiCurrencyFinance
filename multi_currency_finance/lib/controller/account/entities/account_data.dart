@@ -7,5 +7,5 @@ class AccountData {
   late final String currencySymbol;
   late final Balance balance;
 
-  AccountData(this.id, this.name, this.description, this.currencySymbol, this.balance);
+  AccountData({required this.id, required this.name, this.description, required this.currencySymbol, required this.balance});
 }

@@ -25,7 +25,7 @@ class CreateCurrencyScreenState extends State<CreateCurrencyScreen> {
   void initState() {
     super.initState();
 
-    _createCurrencyService = CreateCurrencyService(this._currencyRepository);
+    _createCurrencyService = CreateCurrencyService(currencyRepository: this._currencyRepository);
   }
 
   @override
@@ -48,9 +48,10 @@ class CreateCurrencyScreenState extends State<CreateCurrencyScreen> {
 
       this._createCurrencyService.execute(
         CreateCurrencyRequest(
-          _nameController.text, 
-          _abbreviationController.text, 
-          _symbolController.text)
+          currencyName: _nameController.text, 
+          currencyAbbreviation: _abbreviationController.text, 
+          currencySymbol: _symbolController.text
+        )
       );
       Navigator.pop(context, true); // Pop the screen and return true
     }

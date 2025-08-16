@@ -6,14 +6,14 @@ class Result<T> {
   late final bool _isError;
 
   factory Result.success(T value) {
-    return Result._internal(value, null, false);
+    return Result._internal(value: value, isError: false);
   }
 
   factory Result.failure(Error error) {
-    return Result._internal(null, error, true);
+    return Result._internal(error: error, isError: true);
   }
 
-  Result._internal(T? value, Error? error, bool isError) {
+  Result._internal({T? value, Error? error, required bool isError}) {
     this._value = value;
     this._error = error;
     this._isError = isError;

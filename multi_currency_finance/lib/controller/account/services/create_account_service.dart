@@ -11,11 +11,13 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
   late final IAccountRepository _accountRepository;
   late final ICurrencyRepository _currencyRepository;
 
-  CreateAccountService(this._accountRepository, this._currencyRepository);
+  CreateAccountService({required IAccountRepository accountRepository, required ICurrencyRepository currencyRepository }) :
+    this._accountRepository = accountRepository,
+    this._currencyRepository = currencyRepository;
 
   @override
   Future<Result<CreateAccountResponse>> execute(CreateAccountRequest params) async {
-    final currencyResult = await this._currencyRepository.findById(params._currencyId);
+    final currencyResult = await this._currencyRepository.findById(params.currencyId);
 
     if (currencyResult.isError) return Result.failure(currencyResult.error);
     
@@ -23,41 +25,33 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
 
     final saveResult = await this._accountRepository.save(
       Account(
-        uuidGenerator.v4(),
-        params.accountName,
-        params.description,
-        currencyResult.value.id,
-        Balance([BalanceAmount(params.amount, params.exchangeRate)])
+        id: uuidGenerator.v4(),
+        name: params.accountName,
+        description: params.description,
+        currencyId: currencyResult.value.id,
+        balance: Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate)])
       )
     );
 
     if (saveResult.isError) return Result.failure(saveResult.error);
 
-    return Result.success(CreateAccountResponse(saveResult.value));
+    return Result.success(CreateAccountResponse(accountId: saveResult.value));
   }
 
 }
 
 class CreateAccountRequest {
-  late final String _accountName;
-  late final String _currencyId;
-  late final String? _description;
-  late final double _amount;
-  late final double _exchangeRate;
+  late final String accountName;
+  late final String currencyId;
+  late final String? description;
+  late final double amount;
+  late final double exchangeRate;
 
-  String get accountName => this._accountName;
-  String get currencyId => this._currencyId;
-  String? get description => this._description;
-  double get amount => this._amount;
-  double get exchangeRate => this._exchangeRate;
-
-  CreateAccountRequest(this._accountName, this._currencyId, this._amount, this._exchangeRate, this._description);
+  CreateAccountRequest({required this.accountName, required this.currencyId, this.description, required this.amount, required this.exchangeRate});
 }
 
 class CreateAccountResponse {
-  late final String _accountId;
+  late final String accountId;
 
-  String get accountId => this._accountId;
-
-  CreateAccountResponse(this._accountId);
+  CreateAccountResponse({required this.accountId});
 }

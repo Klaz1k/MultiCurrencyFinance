@@ -7,7 +7,8 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 class GetAllCurrenciesService implements IService<GetAllCurrenciesRequest, GetAllCurrenciesResponse> {
   late final ICurrencyRepository _currencyRepository;
 
-  GetAllCurrenciesService(this._currencyRepository);
+  GetAllCurrenciesService({required currencyRepository}) :
+    this._currencyRepository = currencyRepository;
 
   @override
   Future<Result<GetAllCurrenciesResponse>> execute(GetAllCurrenciesRequest params) async {
@@ -17,7 +18,12 @@ class GetAllCurrenciesService implements IService<GetAllCurrenciesRequest, GetAl
 
     final List<CurrencyData> currencyDataList = [];
     for (Currency cur in currenciesResult.value) {
-      currencyDataList.add(CurrencyData(cur.id, cur.name, cur.abbreviation, cur.symbol));
+      currencyDataList.add(CurrencyData(
+        id: cur.id, 
+        name: cur.name, 
+        abbreviation: cur.abbreviation, 
+        symbol: cur.symbol
+      ));
     }
 
     return Result.success(GetAllCurrenciesResponse(currencyDataList));

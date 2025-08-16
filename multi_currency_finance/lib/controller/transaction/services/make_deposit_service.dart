@@ -12,7 +12,7 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
   late final ITransactionRepository _transactionRepository;
   //TODO: CategoryRepository goes here
 
-  MakeDepositService(this._accountRepository, this._transactionRepository);
+  MakeDepositService({required IAccountRepository accountRepository, required ITransactionRepository transactionRepository});
 
   @override
   Future<Result<MakeDepositResponse>> execute(MakeDepositRequest params) async {
@@ -20,7 +20,7 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
 
     if (accountResult.isError) return Result.failure(accountResult.error);
 
-    accountResult.value.deposit(BalanceAmount(params.amount, params.exchangeRate));
+    accountResult.value.deposit(BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate));
     final accountSaveResult = await this._accountRepository.save(accountResult.value);
 
     if (accountSaveResult.isError) return Result.failure(accountSaveResult.error);
@@ -29,19 +29,18 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
 
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
-        uuidGenerator.v4(), 
-        TransactionType.Deposit, 
-        null, 
-        DateTime.now(),
-        accountResult.value.currencyId, 
-        params.description, 
-        BalanceAmount(params.amount, params.exchangeRate), 
-        accountResult.value.id
+        id: uuidGenerator.v4(), 
+        transactionType: TransactionType.Deposit,  
+        date: DateTime.now(),
+        currencyId: accountResult.value.currencyId, 
+        description: params.description, 
+        transactedAmount: BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate), 
+        relatedAccountId: accountResult.value.id
       )
     );
     if (transactionSaveResult.isError) return Result.failure(transactionSaveResult.error);
 
-    return Result.success(MakeDepositResponse(transactionSaveResult.value));
+    return Result.success(MakeDepositResponse(transactionId: transactionSaveResult.value));
   }
 }
 
@@ -52,11 +51,11 @@ class MakeDepositRequest {
   late final double amount;
   late final double exchangeRate;
 
-  MakeDepositRequest(this.accountId, this.categoryId, this.description, this.amount, this.exchangeRate);
+  MakeDepositRequest({required this.accountId, this.categoryId, this.description, required this.amount, required this.exchangeRate});
 }
 
 class MakeDepositResponse {
   late final String transactionId;
 
-  MakeDepositResponse(this.transactionId);
+  MakeDepositResponse({required this.transactionId});
 }

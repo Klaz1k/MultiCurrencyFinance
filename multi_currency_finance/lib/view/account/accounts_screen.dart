@@ -23,7 +23,10 @@ class AccountsScreenState extends State<AccountsScreen> {
   final int _perPage = 10; // Number of accounts to fetch per page
 
   //Temp
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> getAllAccountsService = GetAllAccountsService(MemoryAccountRepositoryInstance.instance, MemoryCurrencyRepositoryInstance.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> getAllAccountsService = GetAllAccountsService(
+    accountRepository: MemoryAccountRepositoryInstance.instance, 
+    currencyRepository: MemoryCurrencyRepositoryInstance.instance
+  );
 
   @override
   void initState() {
@@ -53,7 +56,7 @@ class AccountsScreenState extends State<AccountsScreen> {
 
     try {
       final newAccounts = await this.getAllAccountsService.execute(
-        GetAllAccountsRequest.pag(_currentPage, _perPage)
+        GetAllAccountsRequest(page: _currentPage, perPage: _perPage)
       );
 
       if (newAccounts.isError) return;

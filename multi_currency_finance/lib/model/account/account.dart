@@ -8,9 +8,10 @@ class Account {
   late final String currencyId;
   late final Balance _balance;
 
-  Balance get balance => Balance(this._balance.balanceQueue);
+  Balance get balance => Balance(balanceQueue: this._balance.balanceQueue);
 
-  Account(this.id, this.name, this.description, this.currencyId, this._balance);
+  Account({required this.id, required this.name, this.description, required this.currencyId, required Balance balance}) :
+    this._balance = balance;
 
   List<BalanceAmount> withdraw(double amount) {
     return this._balance.reduce(amount);

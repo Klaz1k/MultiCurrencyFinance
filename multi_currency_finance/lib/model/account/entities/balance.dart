@@ -11,7 +11,8 @@ class Balance {
     return list;
   }
 
-  Balance(this._balanceQueue);
+  Balance({required List<BalanceAmount> balanceQueue}) :
+    this._balanceQueue = balanceQueue;
 
   double getCurrentBalance() {
     double currentBalance = 0;

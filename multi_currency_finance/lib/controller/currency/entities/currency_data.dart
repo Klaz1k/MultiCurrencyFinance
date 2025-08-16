@@ -4,5 +4,5 @@ class CurrencyData {
   late final String abbreviation;
   late final String symbol;
 
-  CurrencyData(this.id, this.name, this.abbreviation, this.symbol);
+  CurrencyData({required this.id, required this.name, required this.abbreviation, required this.symbol });
 }

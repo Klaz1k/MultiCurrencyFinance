@@ -5,7 +5,7 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 
 class MemoryCurrencyRepository implements ICurrencyRepository {
   // List<Currency> currencyList = [];
-  List<Currency> currencyList = [Currency("1", "TestCurrency", "Tst", "<>")];
+  List<Currency> currencyList = [Currency(id: "1", name: "TestCurrency", abbreviation: "Tst", symbol: "<>")];
   
   @override
   Future<Result<List<Currency>>> findAll(int? page, int? perPage) async {

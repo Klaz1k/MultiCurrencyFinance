@@ -11,5 +11,14 @@ class Transaction {
   late final BalanceAmount transactedAmount;
   late final String relatedAccountId;
 
-  Transaction(this.id, this.transactionType, this.categoryId, this.date, this.currencyId, this.description, this.transactedAmount, this.relatedAccountId);
+  Transaction({
+    required this.id, 
+    required this.transactionType, 
+    this.categoryId, 
+    required this.date, 
+    required this.currencyId, 
+    this.description, 
+    required this.transactedAmount, 
+    required this.relatedAccountId
+  });
 }
