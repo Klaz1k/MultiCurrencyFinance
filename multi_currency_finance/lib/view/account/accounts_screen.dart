@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/entities/account_data.dart';
+import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 // import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
+import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 // import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/view/account/create_account_screen.dart';
-import 'package:multi_currency_finance/controller/common/global-instances/memory_account_repository_instance.dart';
-import 'package:multi_currency_finance/controller/common/global-instances/memory_currency_repository_instance.dart';
 
 class AccountsScreen extends StatefulWidget {
   const AccountsScreen({super.key});
@@ -24,8 +24,8 @@ class AccountsScreenState extends State<AccountsScreen> {
 
   //Temp
   final IService<GetAllAccountsRequest, GetAllAccountsResponse> getAllAccountsService = GetAllAccountsService(
-    accountRepository: MemoryAccountRepositoryInstance.instance, 
-    currencyRepository: MemoryCurrencyRepositoryInstance.instance
+    accountRepository: MemoryAccountRepository.instance, 
+    currencyRepository: MemoryCurrencyRepository.instance
   );
 
   @override

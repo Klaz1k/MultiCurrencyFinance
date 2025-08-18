@@ -5,8 +5,16 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 
 class MemoryCurrencyRepository implements ICurrencyRepository {
   // List<Currency> currencyList = [];
-  List<Currency> currencyList = [Currency(id: "1", name: "TestCurrency", abbreviation: "Tst", symbol: "<>")];
-  
+  List<Currency> currencyList = [Currency(id: "1", name: "TestCurrency", abbreviation: "Tst", symbol: "<>", isMain: true)];
+  static late final MemoryCurrencyRepository? _instance;
+
+  static MemoryCurrencyRepository get instance {
+    if (MemoryCurrencyRepository._instance == null) MemoryCurrencyRepository._instance = MemoryCurrencyRepository._();
+
+    return MemoryCurrencyRepository._instance!;
+  }
+
+  MemoryCurrencyRepository._();
   @override
   Future<Result<List<Currency>>> findAll(int? page, int? perPage) async {
     if (page == null || perPage == null) return Result.success(this.currencyList); 

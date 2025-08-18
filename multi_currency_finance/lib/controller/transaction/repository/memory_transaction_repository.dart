@@ -5,7 +5,16 @@ import 'package:multi_currency_finance/model/transaction/transaction.dart';
 
 class MemoryTransactionRepository implements ITransactionRepository {
   final List<Transaction> _transactionList = [];
- 
+  static late final MemoryTransactionRepository? _instance;
+
+  MemoryTransactionRepository get instance {
+    if (MemoryTransactionRepository._instance == null) MemoryTransactionRepository._instance = MemoryTransactionRepository._();
+
+    return MemoryTransactionRepository._instance!;
+  }
+
+  MemoryTransactionRepository._();
+
   @override
   Future<Result<List<Transaction>>> findAll(int? page, int? perPage) async {
     if (page == null || perPage == null) return Result.success(this._transactionList);

@@ -2,3 +2,4 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     unnecessary_this: ignore
+    prefer_conditional_assignment: ignore

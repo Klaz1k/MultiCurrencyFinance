@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/create_account_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/entities/currency_data.dart';
+import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/currency/services/get_all_currencies_service.dart';
 import 'package:multi_currency_finance/model/account/repository/account_repository.interface.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
-import 'package:multi_currency_finance/controller/common/global-instances/memory_account_repository_instance.dart';
-import 'package:multi_currency_finance/controller/common/global-instances/memory_currency_repository_instance.dart';
 import 'package:multi_currency_finance/view/currency/create_currency_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
@@ -25,8 +25,8 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
   final _exchangeRateController = TextEditingController();
 
   //Temp
-  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepositoryInstance.instance;
-  final IAccountRepository _accountRepository = MemoryAccountRepositoryInstance.instance;
+  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepository.instance;
+  final IAccountRepository _accountRepository = MemoryAccountRepository.instance;
   late final IService<GetAllCurrenciesRequest, GetAllCurrenciesResponse> _getAllCurrenciesService; 
   late final IService<CreateAccountRequest, CreateAccountResponse> _createAccountService;
 

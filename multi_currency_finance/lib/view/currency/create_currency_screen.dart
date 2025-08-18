@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
+import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/currency/services/create_currency_service.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
-import 'package:multi_currency_finance/controller/common/global-instances/memory_currency_repository_instance.dart';
 
 class CreateCurrencyScreen extends StatefulWidget {
   const CreateCurrencyScreen({super.key});
@@ -18,7 +18,7 @@ class CreateCurrencyScreenState extends State<CreateCurrencyScreen> {
   final _symbolController = TextEditingController();
 
   //Temp
-  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepositoryInstance.instance;
+  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepository.instance;
   late final IService<CreateCurrencyRequest, CreateCurrencyResponse> _createCurrencyService;
 
   @override

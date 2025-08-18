@@ -8,7 +8,15 @@ import 'package:multi_currency_finance/model/common/result/result.dart';
 class MemoryAccountRepository implements IAccountRepository {
   // final List<Account> _accountList = [];
   final List<Account> _accountList = [Account(id: '1', name: 'TestAccount', currencyId: '1', balance: Balance(balanceQueue: [BalanceAmount(amount: 10.0, exchangeRate: 1.0)]))];
+  static late final MemoryAccountRepository? _instance;
 
+  static MemoryAccountRepository get instance {
+    if (MemoryAccountRepository._instance == null) MemoryAccountRepository._instance = MemoryAccountRepository._();
+
+    return MemoryAccountRepository._instance!;
+  }
+
+  MemoryAccountRepository._();
   @override
   Future<Result<List<Account>>> findAll(int? page, int? perPage) async {
     if (page == null || perPage == null) return Result.success(this._accountList);
