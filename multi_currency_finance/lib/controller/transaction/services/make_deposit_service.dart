@@ -12,7 +12,9 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
   late final ITransactionRepository _transactionRepository;
   //TODO: CategoryRepository goes here
 
-  MakeDepositService({required IAccountRepository accountRepository, required ITransactionRepository transactionRepository});
+  MakeDepositService({required ITransactionRepository transactionRepository, required IAccountRepository accountRepository }) :
+    _transactionRepository = transactionRepository,
+    _accountRepository = accountRepository;
 
   @override
   Future<Result<MakeDepositResponse>> execute(MakeDepositRequest params) async {

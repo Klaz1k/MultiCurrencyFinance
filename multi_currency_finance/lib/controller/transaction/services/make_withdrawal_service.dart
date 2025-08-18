@@ -11,7 +11,7 @@ class MakeWithdrawalService implements IService<MakeWithdrawalRequest, MakeWithd
   late final ITransactionRepository _transactionRepository;
   //TODO: ExpenseCategoryRepository
   
-  MakeWithdrawalService({required IAccountRepository accountRepository, required ITransactionRepository transactionRepository}) : 
+  MakeWithdrawalService({ required ITransactionRepository transactionRepository, required IAccountRepository accountRepository}) : 
     this._accountRepository = accountRepository, 
     this._transactionRepository = transactionRepository;
 

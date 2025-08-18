@@ -1,17 +1,16 @@
 import 'package:multi_currency_finance/model/common/result/result.dart';
 import 'package:multi_currency_finance/model/currency/currency.dart';
 import 'package:multi_currency_finance/model/currency/errors/currency_not_found_error.dart';
+import 'package:multi_currency_finance/model/currency/errors/main_currency_not_found_error.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 
 class MemoryCurrencyRepository implements ICurrencyRepository {
   // List<Currency> currencyList = [];
   List<Currency> currencyList = [Currency(id: "1", name: "TestCurrency", abbreviation: "Tst", symbol: "<>", isMain: true)];
-  static late final MemoryCurrencyRepository? _instance;
+  static final MemoryCurrencyRepository _instance = MemoryCurrencyRepository._();
 
   static MemoryCurrencyRepository get instance {
-    if (MemoryCurrencyRepository._instance == null) MemoryCurrencyRepository._instance = MemoryCurrencyRepository._();
-
-    return MemoryCurrencyRepository._instance!;
+    return MemoryCurrencyRepository._instance;
   }
 
   MemoryCurrencyRepository._();
@@ -48,5 +47,14 @@ class MemoryCurrencyRepository implements ICurrencyRepository {
     }
     this.currencyList.add(currency);
     return Result.success(currency.id);
+  }
+  
+  @override
+  Future<Result<Currency>> findMainCurrency() async {
+    for (Currency cur in this.currencyList) {
+      if (cur.isMain) return Result.success(cur);
+    }
+
+    return Result.failure(MainCurrencyNotFoundError());
   }
 }

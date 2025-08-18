@@ -1,11 +1,10 @@
 import 'package:uuid/uuid.dart';
 
 class UuidGenerator {
-  static late final Uuid? _instance; 
+  static final Uuid _instance = Uuid(); 
 
   static Uuid get instance {
-    if (UuidGenerator._instance == null) UuidGenerator._instance == Uuid();
 
-    return UuidGenerator._instance!;
+    return UuidGenerator._instance;
   }
 }

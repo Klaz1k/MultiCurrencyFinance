@@ -1,16 +1,17 @@
+import 'package:multi_currency_finance/model/account/entities/balance_amount.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
 import 'package:multi_currency_finance/model/transaction/errors/transaction_not_found_error.dart';
 import 'package:multi_currency_finance/model/transaction/repository/transaction_repository.interface.dart';
+import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/model/transaction/transaction.dart';
 
 class MemoryTransactionRepository implements ITransactionRepository {
-  final List<Transaction> _transactionList = [];
-  static late final MemoryTransactionRepository? _instance;
+  // final List<Transaction> _transactionList = [];
+  final List<Transaction> _transactionList = [Transaction(id: "1", transactionType: TransactionType.Deposit, date: DateTime.now(), currencyId: "1", transactedAmount: [BalanceAmount(amount: 100, exchangeRate: 25)], relatedAccountId: "1")];
+  static final MemoryTransactionRepository _instance = MemoryTransactionRepository._();
 
-  MemoryTransactionRepository get instance {
-    if (MemoryTransactionRepository._instance == null) MemoryTransactionRepository._instance = MemoryTransactionRepository._();
-
-    return MemoryTransactionRepository._instance!;
+  static MemoryTransactionRepository get instance {
+    return MemoryTransactionRepository._instance;
   }
 
   MemoryTransactionRepository._();

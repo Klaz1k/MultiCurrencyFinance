@@ -8,10 +8,10 @@ import 'package:multi_currency_finance/model/transaction/structures/transaction_
 import 'package:multi_currency_finance/model/transaction/transaction.dart';
 
 class MakeTransferService implements IService<MakeTransferRequest, MakeTransferResponse> {
-  late final IAccountRepository _accountRepository;
   late final ITransactionRepository _transactionRepository;
+  late final IAccountRepository _accountRepository;
 
-  MakeTransferService({required accountRepository, required transactionRespository}) :
+  MakeTransferService({required ITransactionRepository transactionRespository, required IAccountRepository accountRepository}) :
     this._accountRepository = accountRepository,
     this._transactionRepository = transactionRespository;
 

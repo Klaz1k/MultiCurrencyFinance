@@ -21,4 +21,20 @@ class Transaction {
     required this.transactedAmount, 
     required this.relatedAccountId
   });
+
+  double getTotalTransacted() {
+    double total = 0;
+    for (BalanceAmount balanceAmount in this.transactedAmount) {
+      total += balanceAmount.amount;
+    }
+    return total;
+  }
+
+  double getExchangedTotal() {
+    double total = 0;
+    for (BalanceAmount balanceAmount in this.transactedAmount) {
+      total += balanceAmount.amount / balanceAmount.exchangeRate;
+    }
+    return total;
+  }
 }

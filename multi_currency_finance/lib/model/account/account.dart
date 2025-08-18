@@ -17,7 +17,7 @@ class Account {
     return this._balance.reduce(amount);
   }
 
-  double deposit(BalanceAmount amount) {
+  BalanceAmount deposit(BalanceAmount amount) {
     return this._balance.add(amount);
   }
 
