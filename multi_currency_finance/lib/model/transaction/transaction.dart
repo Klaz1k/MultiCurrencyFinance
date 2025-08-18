@@ -8,7 +8,7 @@ class Transaction {
   late final DateTime date;
   late final String currencyId;
   late final String? description;
-  late final BalanceAmount transactedAmount;
+  late final List<BalanceAmount> transactedAmount;
   late final String relatedAccountId;
 
   Transaction({

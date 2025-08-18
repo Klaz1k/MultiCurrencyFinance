@@ -30,10 +30,10 @@ double exchangedBalance() {
   return exchangedBalance;
 }
 
-  double add(BalanceAmount amount) {
+  BalanceAmount add(BalanceAmount amount) {
     this._balanceQueue.add(amount);
 
-    return amount.amount;
+    return amount;
   }
   
   List<BalanceAmount> reduce(double amount) {

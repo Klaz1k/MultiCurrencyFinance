@@ -19,7 +19,8 @@ class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCur
         id: uuidGenerator.v4(),
         name: params.currencyName,
         abbreviation: params.currencyAbbreviation,
-        symbol: params.currencySymbol
+        symbol: params.currencySymbol,
+        isMain: false //Create currency service only creates secondary currencies
       )
     );
 
