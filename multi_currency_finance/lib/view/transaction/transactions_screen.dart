@@ -9,7 +9,7 @@ import 'package:multi_currency_finance/controller/transaction/services/get_all_t
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
 
 class TransactionsScreen extends StatefulWidget {
-  const TransactionsScreen({Key? key}) : super(key: key);
+  const TransactionsScreen({super.key});
 
   @override
   TransactionsScreenState createState() => TransactionsScreenState();
@@ -33,11 +33,11 @@ class TransactionsScreenState extends State<TransactionsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchTransactions();
+    _loadTransactions();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _fetchTransactions();
+        _loadTransactions();
       }
     });
   }
@@ -48,7 +48,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchTransactions() async {
+  Future<void> _loadTransactions() async {
     if (_isLoading) return;
 
     setState(() {
@@ -126,7 +126,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                       // Text('Description: ${transaction.description}'),
                       // const SizedBox(height: 4.0),
                       Text(
-                        'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description}',
+                        'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       if (isExpanded)
@@ -167,7 +167,13 @@ class TransactionsScreenState extends State<TransactionsScreen> {
             MaterialPageRoute(
               builder: (context) => const SelectTransactionTypeScreen(),
             ),
-          );
+          ).then((result) {
+            if (result == true) {
+              _transactions.clear();
+              _currentPage = 0;
+              _loadTransactions();
+            }
+          });
         },
         child: const Icon(Icons.add),
       ),

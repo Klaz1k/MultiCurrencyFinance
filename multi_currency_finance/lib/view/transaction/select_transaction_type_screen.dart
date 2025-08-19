@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_currency_finance/view/transaction/make_deposit_screen.dart';
 
 class SelectTransactionTypeScreen extends StatelessWidget {
   const SelectTransactionTypeScreen({super.key});
@@ -16,10 +17,11 @@ class SelectTransactionTypeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const PlaceholderScreen(transactionType: 'Deposit'),
+                    builder: (context) => MakeDepositScreen(),
                   ),
-                );
+                ).then((result) {
+                  if (result == true && context.mounted) Navigator.pop(context, true);
+                });
               },
               child: const Text('Deposit'),
             ),

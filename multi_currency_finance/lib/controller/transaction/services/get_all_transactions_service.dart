@@ -38,7 +38,8 @@ class GetAllTransactionsService implements IService<GetAllTransactionsRequest, G
         TransactionData(
           type: transaction.transactionType, 
           date: transaction.date, 
-          currencySymbol: currencySymbol, 
+          currencySymbol: currencySymbol,
+          description: transaction.description,
           balanceList: transaction.transactedAmount, 
           totalAmount: transaction.getTotalTransacted(), 
           exchangedTotal: transaction.getExchangedTotal(), 
