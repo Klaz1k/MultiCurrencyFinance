@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/view/transaction/make_deposit_screen.dart';
+import 'package:multi_currency_finance/view/transaction/make_withdrawal_screen.dart';
 
 class SelectTransactionTypeScreen extends StatelessWidget {
   const SelectTransactionTypeScreen({super.key});
@@ -31,10 +32,11 @@ class SelectTransactionTypeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const PlaceholderScreen(transactionType: 'Withdrawal'),
+                    builder: (context) => MakeWithdrawalScreen()
                   ),
-                );
+                ).then((result) {
+                  if (result == true && context.mounted) Navigator.pop(context, true); 
+                });
               },
               child: const Text('Withdrawal'),
             ),
