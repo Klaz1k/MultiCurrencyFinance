@@ -40,14 +40,23 @@ double exchangedBalance() {
     List<BalanceAmount> returnList = [];
     double remainder = amount;
 
-    for (BalanceAmount subBalance in this._balanceQueue) {
-      var reduceResponse = subBalance.reduce(remainder);
+    // for (BalanceAmount subBalance in this._balanceQueue) {
+    //   var reduceResponse = subBalance.reduce(remainder);
 
+    //   returnList.add(reduceResponse.balanceSpent);
+    //   if (reduceResponse.remainder <= 0) {
+    //     break;
+    //   }
+    //   this._balanceQueue.remove(subBalance);
+    // }
+    while (remainder > 0 && this._balanceQueue.isNotEmpty) {
+      var reduceResponse = this._balanceQueue[0].reduce(remainder);
+      
+      remainder = reduceResponse.remainder;
       returnList.add(reduceResponse.balanceSpent);
-      if (reduceResponse.remainder <= 0) {
-        break;
+      if (remainder >= 0) {
+        this._balanceQueue.removeAt(0);
       }
-      this._balanceQueue.remove(subBalance);
     }
 
     return returnList;

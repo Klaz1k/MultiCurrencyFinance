@@ -8,15 +8,15 @@ class BalanceAmount {
     this._amount = amount;
 
 ({double remainder, BalanceAmount balanceSpent}) reduce(double amount) {
-    late ({double remainder, BalanceAmount balanceSpent}) result;
+    late double amountSpent;
 
     if (amount >= this._amount) {
-      result = (remainder: amount - this._amount, balanceSpent: BalanceAmount(amount:  this._amount, exchangeRate: this.exchangeRate));
+      amountSpent = this._amount;
     } else {
-      result = (remainder: 0, balanceSpent: BalanceAmount(amount:  this._amount - amount, exchangeRate: this.exchangeRate));
+      amountSpent = this._amount - amount;
       this._amount -= amount;
     }
 
-    return result;
+    return (remainder: amount - this._amount, balanceSpent: BalanceAmount(amount: amountSpent, exchangeRate: this.exchangeRate));
   }
 }
