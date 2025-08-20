@@ -72,7 +72,7 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      this._makeWithdrawalService.execute(
+      await this._makeWithdrawalService.execute(
         MakeWithdrawalRequest(
           accountId: _selectedAccountId!,
           categoryId: _selectedCategoryId, 

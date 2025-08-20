@@ -68,7 +68,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -80,13 +80,13 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
       //   exchangeRate: double.parse(_exchangeRateController.text),
       // );
 
-      this._makeDepositService.execute(
+      await this._makeDepositService.execute(
         MakeDepositRequest(
           accountId: _selectedAccountId!,
           categoryId: _selectedCategoryId,
           description: _descriptionController.text.trim(),
-          amount: double.parse(_amountController.text), 
-          exchangeRate: double.parse(_exchangeRateController.text)
+          amountDeposited: double.parse(_amountController.text), 
+          mainCurrencyEquivalent: double.parse(_exchangeRateController.text)
         )
       );
 
@@ -160,7 +160,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
                 TextFormField(
                   controller: _exchangeRateController,
                   decoration: const InputDecoration(
-                    labelText: 'Exchange Rate',
+                    labelText: 'Main Currency Equivalent',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.currency_exchange),
                   ),
@@ -169,14 +169,14 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an exchange rate';
+                      return 'Please enter an equivalent';
                     }
                     final number = double.tryParse(value);
                     if (number == null) {
                       return 'Please enter a valid number';
                     }
                     if (number <= 0) {
-                      return 'Exchange rate must be positive';
+                      return 'Equivalent must be positive';
                     }
                     return null;
                   },

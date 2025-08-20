@@ -29,7 +29,7 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
         name: params.accountName,
         description: params.description,
         currencyId: currencyResult.value.id,
-        balance: Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate)])
+        balance: Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.amount / params.mainCurrencyEquivalent)])
       )
     );
 
@@ -45,9 +45,9 @@ class CreateAccountRequest {
   late final String currencyId;
   late final String? description;
   late final double amount;
-  late final double exchangeRate;
+  late final double mainCurrencyEquivalent;
 
-  CreateAccountRequest({required this.accountName, required this.currencyId, this.description, required this.amount, required this.exchangeRate});
+  CreateAccountRequest({required this.accountName, required this.currencyId, this.description, required this.amount, required this.mainCurrencyEquivalent});
 }
 
 class CreateAccountResponse {

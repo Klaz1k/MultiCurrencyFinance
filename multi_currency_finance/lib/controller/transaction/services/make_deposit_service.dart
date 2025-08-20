@@ -22,7 +22,7 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
 
     if (accountResult.isError) return Result.failure(accountResult.error);
 
-    final depositedBalance = accountResult.value.deposit(BalanceAmount(amount: params.amount, exchangeRate: params.exchangeRate));
+    final depositedBalance = accountResult.value.deposit(BalanceAmount(amount: params.amountDeposited, exchangeRate: params.amountDeposited / params.mainCurrencyEquivalent));
     final accountSaveResult = await this._accountRepository.save(accountResult.value);
 
     if (accountSaveResult.isError) return Result.failure(accountSaveResult.error);
@@ -50,10 +50,10 @@ class MakeDepositRequest {
   late final String accountId;
   late final String? categoryId;
   late final String? description;
-  late final double amount;
-  late final double exchangeRate;
+  late final double amountDeposited;
+  late final double mainCurrencyEquivalent;
 
-  MakeDepositRequest({required this.accountId, this.categoryId, this.description, required this.amount, required this.exchangeRate});
+  MakeDepositRequest({required this.accountId, this.categoryId, this.description, required this.amountDeposited, required this.mainCurrencyEquivalent});
 }
 
 class MakeDepositResponse {

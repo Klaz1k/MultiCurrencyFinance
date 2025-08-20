@@ -22,7 +22,7 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
   final _accountNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _initialAmountController = TextEditingController();
-  final _exchangeRateController = TextEditingController();
+  final _mainCurrencyEquivalentController = TextEditingController();
 
   //Temp
   final ICurrencyRepository _currencyRepository = MemoryCurrencyRepository.instance;
@@ -51,13 +51,13 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     _accountNameController.dispose();
     _descriptionController.dispose();
     _initialAmountController.dispose();
-    _exchangeRateController.dispose();
+    _mainCurrencyEquivalentController.dispose();
     super.dispose();
   }
 
   Future<void> _fetchCurrencies() async {
     try {
-      final currenciesResult = await this._getAllCurrenciesService.execute(GetAllCurrenciesRequest.pag(null, null));
+      final currenciesResult = await this._getAllCurrenciesService.execute(GetAllCurrenciesRequest());
 
       if (currenciesResult.isError) return;
 
@@ -67,7 +67,6 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
       });
     } catch (e) {
       // Handle error fetching currencies
-      print('Error fetching currencies: $e');
       setState(() {
         _isLoadingCurrencies = false;
       });
@@ -81,7 +80,7 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
           accountName: _accountNameController.text, 
           currencyId: _selectedCurrency!.id, 
           amount: double.parse(_initialAmountController.text), 
-          exchangeRate: double.parse(_exchangeRateController.text), 
+          mainCurrencyEquivalent: double.parse(_mainCurrencyEquivalentController.text), 
           description: _descriptionController.text.isEmpty ? null : _descriptionController.text
         )
       );
@@ -180,15 +179,15 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
                 },
               ),
               TextFormField(
-                controller: _exchangeRateController,
-                decoration: InputDecoration(labelText: 'Exchange Rate'),
+                controller: _mainCurrencyEquivalentController,
+                decoration: InputDecoration(labelText: 'Main Currency Equivalent'),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                 ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter an exchange rate';
+                    return 'Please enter an equivalent';
                   }
                   if (double.tryParse(value) == null) {
                     return 'Please enter a valid number';

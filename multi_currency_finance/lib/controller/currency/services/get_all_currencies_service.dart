@@ -26,7 +26,7 @@ class GetAllCurrenciesService implements IService<GetAllCurrenciesRequest, GetAl
       ));
     }
 
-    return Result.success(GetAllCurrenciesResponse(currencyDataList));
+    return Result.success(GetAllCurrenciesResponse(currencies: currencyDataList));
   }
 }
 
@@ -34,13 +34,11 @@ class GetAllCurrenciesRequest {
   late final int? page;
   late final int? perPage;
 
-  GetAllCurrenciesRequest.pag(this.page, this.perPage);
-
-  GetAllCurrenciesRequest();
+  GetAllCurrenciesRequest({this.page, this.perPage});
 }
 
 class GetAllCurrenciesResponse {
   late final List<CurrencyData> currencies;
 
-  GetAllCurrenciesResponse(this.currencies);
+  GetAllCurrenciesResponse({required this.currencies});
 }

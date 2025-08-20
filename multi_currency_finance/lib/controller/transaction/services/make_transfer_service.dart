@@ -3,6 +3,7 @@ import 'package:multi_currency_finance/controller/common/uuid/uuid_generator.dar
 import 'package:multi_currency_finance/model/account/entities/balance_amount.dart';
 import 'package:multi_currency_finance/model/account/repository/account_repository.interface.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
+import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 import 'package:multi_currency_finance/model/transaction/repository/transaction_repository.interface.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/model/transaction/transaction.dart';
@@ -10,10 +11,12 @@ import 'package:multi_currency_finance/model/transaction/transaction.dart';
 class MakeTransferService implements IService<MakeTransferRequest, MakeTransferResponse> {
   late final ITransactionRepository _transactionRepository;
   late final IAccountRepository _accountRepository;
+  late final ICurrencyRepository _currencyRepository;
 
-  MakeTransferService({required ITransactionRepository transactionRespository, required IAccountRepository accountRepository}) :
+  MakeTransferService({required ITransactionRepository transactionRespository, required IAccountRepository accountRepository, required ICurrencyRepository currencyRepository}) :
     this._accountRepository = accountRepository,
-    this._transactionRepository = transactionRespository;
+    this._transactionRepository = transactionRespository,
+    this._currencyRepository = currencyRepository;
 
   @override
   Future<Result<MakeTransferResponse>> execute(MakeTransferRequest params) async {
@@ -25,15 +28,37 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
 
     if (receivingAccountResult.isError) return Result.failure(receivingAccountResult.error);
 
-    final outgoingBalance = transferingAccountResult.value.withdraw(params.amount);
+    final outgoingBalance = transferingAccountResult.value.withdraw(params.outgoingAmount);
+
+    final incomingCurrencyResult = await this._currencyRepository.findById(receivingAccountResult.value.currencyId);
+
+    if (incomingCurrencyResult.isError) return Result.failure(incomingCurrencyResult.error);
+    
+    late final double exchangeRate;
+    if (incomingCurrencyResult.value.isMain) {
+      exchangeRate = 1.0;
+    } else {
+      final outgoingCurrencyResult = await this._currencyRepository.findById(transferingAccountResult.value.currencyId);
+
+      if (outgoingCurrencyResult.isError) return Result.failure(outgoingCurrencyResult.error);
+
+      if (outgoingCurrencyResult.value.isMain) {
+        exchangeRate = (params.incomingAmount / params.outgoingAmount);
+      } else {
+        double convertedOutgoingBalance = 0;
+        for (final subBalance in outgoingBalance) {
+          convertedOutgoingBalance += subBalance.amount / subBalance.exchangeRate;
+        }
+        exchangeRate = (params.incomingAmount / convertedOutgoingBalance);
+      }
+    }
 
     final incomingBalance = receivingAccountResult.value.deposit(
-      BalanceAmount(
-        amount: params.amount * params.transferExchangeRate, 
-        exchangeRate: params.mainExchangeRate
-      )
-    );
-
+        BalanceAmount(
+          amount: params.incomingAmount, 
+          exchangeRate: exchangeRate
+        )
+      );
     final uuidGenerator = UuidGenerator.instance;
 
     final outgoingTransferSaveResult = await this._transactionRepository.save(
@@ -74,11 +99,10 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
 class MakeTransferRequest {
   late final String transferingAccountId;
   late final String receivingAccountId;
-  late final double amount;
-  late final double transferExchangeRate;
-  late final double mainExchangeRate;
+  late final double outgoingAmount;
+  late final double incomingAmount;
 
-  MakeTransferRequest({required this.transferingAccountId, required this.receivingAccountId, required this.amount, required this.transferExchangeRate, required this.mainExchangeRate});
+  MakeTransferRequest({required this.transferingAccountId, required this.receivingAccountId, required this.outgoingAmount, required this.incomingAmount});
 }
 
 class MakeTransferResponse {

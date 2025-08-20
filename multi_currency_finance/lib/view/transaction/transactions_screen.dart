@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/entities/transaction_data.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/get_all_transactions_service.dart';
+import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
 
 class TransactionsScreen extends StatefulWidget {
@@ -48,6 +48,22 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     super.dispose();
   }
 
+  Color _getTransactionTypeColor(TransactionType type) {
+    switch (type) {
+      case TransactionType.Deposit:
+        return const Color.fromARGB(145, 105, 240, 175);
+
+      case TransactionType.Withdrawal:
+        return const Color.fromARGB(145, 255, 82, 82);
+
+      case TransactionType.IncomingTransfer:
+        return const Color.fromARGB(145, 64, 195, 255);
+      
+      case TransactionType.OutgoingTransfer:
+        return const Color.fromARGB(145, 64, 195, 255);
+    }
+  }
+
   Future<void> _loadTransactions() async {
     if (_isLoading) return;
 
@@ -70,9 +86,6 @@ class TransactionsScreenState extends State<TransactionsScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching transactions: $e');
-      }
       setState(() {
         _isLoading = false;
       });
@@ -100,7 +113,11 @@ class TransactionsScreenState extends State<TransactionsScreen> {
           if (index < _transactions.length) {
             final transaction = _transactions[index];
             final isExpanded = _expandedTransactions.contains(index);
+            String? transferArrow;
+            if (transaction.type == TransactionType.OutgoingTransfer) transferArrow = '==>';
+            if (transaction.type == TransactionType.IncomingTransfer) transferArrow = '<==';
             return Card(
+              color: _getTransactionTypeColor(transaction.type),
               margin: const EdgeInsets.symmetric(
                 horizontal: 8.0,
                 vertical: 4.0,
@@ -112,11 +129,11 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Type: ${transaction.type.name}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4.0),
+                      // Text(
+                      //   'Type: ${transaction.type.name}',
+                      //   style: const TextStyle(fontWeight: FontWeight.bold),
+                      // ),
+                      // const SizedBox(height: 4.0),
                       Text(
                         'Date: ${transaction.date.toLocal().toString().split(' ')[0]}',
                       ),
@@ -126,7 +143,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                       // Text('Description: ${transaction.description}'),
                       // const SizedBox(height: 4.0),
                       Text(
-                        'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}',
+                        'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       if (isExpanded)
