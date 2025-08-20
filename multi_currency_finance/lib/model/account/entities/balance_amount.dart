@@ -12,11 +12,12 @@ class BalanceAmount {
 
     if (amount >= this._amount) {
       amountSpent = this._amount;
+      this._amount = 0;
     } else {
-      amountSpent = this._amount - amount;
+      amountSpent = amount;
       this._amount -= amount;
     }
 
-    return (remainder: amount - this._amount, balanceSpent: BalanceAmount(amount: amountSpent, exchangeRate: this.exchangeRate));
+    return (remainder: amount - amountSpent, balanceSpent: BalanceAmount(amount: amountSpent, exchangeRate: this.exchangeRate));
   }
 }
