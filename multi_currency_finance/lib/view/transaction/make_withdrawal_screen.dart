@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/entities/account_data.dart';
+import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
@@ -44,8 +45,8 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
 
   final _categoryService = MockCategoryService();
 
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: MemoryAccountRepository.instance, currencyRepository: MemoryCurrencyRepository.instance);
-  final IService<MakeWithdrawalRequest, MakeWithdrawalResponse> _makeWithdrawalService = MakeWithdrawalService(transactionRepository: MemoryTransactionRepository.instance, accountRepository: MemoryAccountRepository.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: MemoryCurrencyRepository.instance);
+  final IService<MakeWithdrawalRequest, MakeWithdrawalResponse> _makeWithdrawalService = MakeWithdrawalService(transactionRepository: MemoryTransactionRepository.instance, accountRepository: HiveAccountRepository.instance);
 
   late Future<Result<GetAllAccountsResponse>> _accountsFuture;
   late Future<List<CategoryData>> _categoriesFuture;

@@ -1,0 +1,1 @@
+class PaginationError extends Error {}

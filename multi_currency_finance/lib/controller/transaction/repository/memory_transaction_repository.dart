@@ -8,11 +8,7 @@ import 'package:multi_currency_finance/model/transaction/transaction.dart';
 class MemoryTransactionRepository implements ITransactionRepository {
   // final List<Transaction> _transactionList = [];
   final List<Transaction> _transactionList = [Transaction(id: "1", transactionType: TransactionType.Deposit, description: 'Test Description',date: DateTime.now(), currencyId: "1", transactedAmount: [BalanceAmount(amount: 100, exchangeRate: 25)], relatedAccountId: "1")];
-  static final MemoryTransactionRepository _instance = MemoryTransactionRepository._();
-
-  static MemoryTransactionRepository get instance {
-    return MemoryTransactionRepository._instance;
-  }
+  static final MemoryTransactionRepository instance = MemoryTransactionRepository._();
 
   MemoryTransactionRepository._();
 

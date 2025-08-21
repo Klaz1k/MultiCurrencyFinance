@@ -7,11 +7,7 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 class MemoryCurrencyRepository implements ICurrencyRepository {
   // List<Currency> currencyList = [];
   List<Currency> currencyList = [Currency(id: "1", name: "TestCurrency", abbreviation: "Tst", symbol: "<>", isMain: true)];
-  static final MemoryCurrencyRepository _instance = MemoryCurrencyRepository._();
-
-  static MemoryCurrencyRepository get instance {
-    return MemoryCurrencyRepository._instance;
-  }
+  static final MemoryCurrencyRepository instance = MemoryCurrencyRepository._();
 
   MemoryCurrencyRepository._();
   @override

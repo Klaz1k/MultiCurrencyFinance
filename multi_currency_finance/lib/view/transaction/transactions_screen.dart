@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
@@ -26,7 +27,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
   //Temp
   final IService<GetAllTransactionsRequest, GetAllTransactionsResponse> _getAllTransactionsService = GetAllTransactionsService(
     transactionRepository: MemoryTransactionRepository.instance, 
-    accountRepository: MemoryAccountRepository.instance, 
+    accountRepository: HiveAccountRepository.instance, 
     currencyRepository: MemoryCurrencyRepository.instance
   );
 
