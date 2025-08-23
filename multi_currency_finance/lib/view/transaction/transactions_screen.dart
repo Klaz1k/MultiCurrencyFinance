@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
-import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
+// import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/entities/transaction_data.dart';
-import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
+import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
+// import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/get_all_transactions_service.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
@@ -26,9 +28,9 @@ class TransactionsScreenState extends State<TransactionsScreen> {
 
   //Temp
   final IService<GetAllTransactionsRequest, GetAllTransactionsResponse> _getAllTransactionsService = GetAllTransactionsService(
-    transactionRepository: MemoryTransactionRepository.instance, 
+    transactionRepository: HiveTransactionRepository.instance, 
     accountRepository: HiveAccountRepository.instance, 
-    currencyRepository: MemoryCurrencyRepository.instance
+    currencyRepository: HiveCurrencyRepository.instance
   );
 
   @override

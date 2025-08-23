@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
-import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
+// import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
-import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
+// import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/make_transfer_service.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
 
@@ -22,8 +24,8 @@ class _MakeTransferScreenState extends State<MakeTransferScreen> {
   final _outgoingAmountController = TextEditingController();
   final _incomingAmountController = TextEditingController();
 
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: MemoryCurrencyRepository.instance);
-  final IService<MakeTransferRequest, MakeTransferResponse> _makeTrasferService = MakeTransferService(transactionRespository: MemoryTransactionRepository.instance, accountRepository: HiveAccountRepository.instance, currencyRepository: MemoryCurrencyRepository.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
+  final IService<MakeTransferRequest, MakeTransferResponse> _makeTrasferService = MakeTransferService(transactionRespository: HiveTransactionRepository.instance, accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
 
   @override
   void dispose() {

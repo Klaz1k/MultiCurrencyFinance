@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
-import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
+// import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
-import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
+// import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/make_deposit_service.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
 
@@ -45,8 +47,8 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   // final _accountService = MockAccountService();
   final _categoryService = MockCategoryService();
 
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: MemoryCurrencyRepository.instance);
-  final IService<MakeDepositRequest, MakeDepositResponse> _makeDepositService = MakeDepositService(transactionRepository: MemoryTransactionRepository.instance, accountRepository: HiveAccountRepository.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
+  final IService<MakeDepositRequest, MakeDepositResponse> _makeDepositService = MakeDepositService(transactionRepository: HiveTransactionRepository.instance, accountRepository: HiveAccountRepository.instance);
   
   late Future<Result<GetAllAccountsResponse>> _accountsFuture;
   late Future<List<CategoryData>> _categoriesFuture;

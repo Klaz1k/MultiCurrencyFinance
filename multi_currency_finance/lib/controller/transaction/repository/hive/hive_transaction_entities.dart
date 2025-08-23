@@ -26,7 +26,7 @@ class TransactionHiveObject extends HiveObject {
   late final String currencyId;
 
   @HiveField(5)
-  late String description;
+  late String? description;
 
   @HiveField(6)
   late final List<BalanceHiveObject> transactedAmount;
@@ -40,7 +40,7 @@ class TransactionHiveObject extends HiveObject {
     this.categoryId,
     required this.date,
     required this.currencyId,
-    required this.description,
+    this.description,
     required this.transactedAmount,
     required this.relatedAccountId
   });
