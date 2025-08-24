@@ -24,8 +24,16 @@ class _MakeTransferScreenState extends State<MakeTransferScreen> {
   final _outgoingAmountController = TextEditingController();
   final _incomingAmountController = TextEditingController();
 
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
-  final IService<MakeTransferRequest, MakeTransferResponse> _makeTrasferService = MakeTransferService(transactionRespository: HiveTransactionRepository.instance, accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(
+    accountRepository: HiveAccountRepository.instance, 
+    currencyRepository: HiveCurrencyRepository.instance
+  );
+
+  final IService<MakeTransferRequest, MakeTransferResponse> _makeTrasferService = MakeTransferService(
+    transactionRespository: HiveTransactionRepository.instance, 
+    accountRepository: HiveAccountRepository.instance, 
+    currencyRepository: HiveCurrencyRepository.instance
+  );
 
   @override
   void dispose() {

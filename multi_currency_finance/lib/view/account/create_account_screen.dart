@@ -4,7 +4,8 @@ import 'package:multi_currency_finance/controller/account/repository/hive/hive_a
 import 'package:multi_currency_finance/controller/account/services/create_account_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/entities/currency_data.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/currency/services/get_all_currencies_service.dart';
 import 'package:multi_currency_finance/model/account/repository/account_repository.interface.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
@@ -25,7 +26,7 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
   final _mainCurrencyEquivalentController = TextEditingController();
 
   //Temp
-  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepository.instance;
+  final ICurrencyRepository _currencyRepository = HiveCurrencyRepository.instance;
   final IAccountRepository _accountRepository = HiveAccountRepository.instance;
   late final IService<GetAllCurrenciesRequest, GetAllCurrenciesResponse> _getAllCurrenciesService; 
   late final IService<CreateAccountRequest, CreateAccountResponse> _createAccountService;

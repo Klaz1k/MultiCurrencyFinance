@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/currency/services/create_currency_service.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 
@@ -18,7 +19,7 @@ class CreateCurrencyScreenState extends State<CreateCurrencyScreen> {
   final _symbolController = TextEditingController();
 
   //Temp
-  final ICurrencyRepository _currencyRepository = MemoryCurrencyRepository.instance;
+  final ICurrencyRepository _currencyRepository = HiveCurrencyRepository.instance;
   late final IService<CreateCurrencyRequest, CreateCurrencyResponse> _createCurrencyService;
 
   @override

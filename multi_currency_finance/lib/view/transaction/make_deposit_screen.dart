@@ -47,8 +47,15 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   // final _accountService = MockAccountService();
   final _categoryService = MockCategoryService();
 
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(accountRepository: HiveAccountRepository.instance, currencyRepository: HiveCurrencyRepository.instance);
-  final IService<MakeDepositRequest, MakeDepositResponse> _makeDepositService = MakeDepositService(transactionRepository: HiveTransactionRepository.instance, accountRepository: HiveAccountRepository.instance);
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(
+    accountRepository: HiveAccountRepository.instance, 
+    currencyRepository: HiveCurrencyRepository.instance
+  );
+
+  final IService<MakeDepositRequest, MakeDepositResponse> _makeDepositService = MakeDepositService(
+    transactionRepository: HiveTransactionRepository.instance, 
+    accountRepository: HiveAccountRepository.instance
+  );
   
   late Future<Result<GetAllAccountsResponse>> _accountsFuture;
   late Future<List<CategoryData>> _categoriesFuture;

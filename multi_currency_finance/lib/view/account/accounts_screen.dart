@@ -4,7 +4,8 @@ import 'package:multi_currency_finance/controller/account/repository/hive/hive_a
 // import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
-import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
+// import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 // import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/view/account/create_account_screen.dart';
 
@@ -25,7 +26,7 @@ class AccountsScreenState extends State<AccountsScreen> {
   //Temp
   final IService<GetAllAccountsRequest, GetAllAccountsResponse> getAllAccountsService = GetAllAccountsService(
     accountRepository: HiveAccountRepository.instance, 
-    currencyRepository: MemoryCurrencyRepository.instance
+    currencyRepository: HiveCurrencyRepository.instance
   );
 
   @override
