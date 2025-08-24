@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_entities.dart';
-import 'package:multi_currency_finance/model/account/errors/account_not_found_error.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
 import 'package:multi_currency_finance/model/currency/currency.dart';
 import 'package:multi_currency_finance/model/currency/errors/currency_not_found_error.dart';
+import 'package:multi_currency_finance/model/currency/errors/main_currency_not_found_error.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 
 class HiveCurrencyRepository implements ICurrencyRepository {
@@ -48,7 +48,7 @@ class HiveCurrencyRepository implements ICurrencyRepository {
 
       return Result.success(mainCurrency.toDomain());
     } catch (e) {
-      return Result.failure(AccountNotFoundError());
+      return Result.failure(MainCurrencyNotFoundError());
     }
   }
 

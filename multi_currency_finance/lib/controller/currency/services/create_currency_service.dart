@@ -12,15 +12,21 @@ class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCur
 
   @override
   Future<Result<CreateCurrencyResponse>> execute(CreateCurrencyRequest params) async {
-    final uuidGenerator = UuidGenerator.instance;
+    bool isMain = false;
 
+    final mainCurrencyResult = await this._currencyRepository.findMainCurrency();
+
+    if (mainCurrencyResult.isError) isMain = true; //If there is no main currency, then next one to be created is to be main
+    
+    final uuidGenerator = UuidGenerator.instance;
+    
     final saveResult = await this._currencyRepository.save(
       Currency(
         id: uuidGenerator.v4(),
         name: params.currencyName,
         abbreviation: params.currencyAbbreviation,
         symbol: params.currencySymbol,
-        isMain: false //Create currency service only creates secondary currencies
+        isMain: isMain
       )
     );
 
