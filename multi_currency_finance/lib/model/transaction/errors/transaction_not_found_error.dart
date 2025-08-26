@@ -1,0 +1,3 @@
+class TransactionNotFoundError extends Error {
+  
+}

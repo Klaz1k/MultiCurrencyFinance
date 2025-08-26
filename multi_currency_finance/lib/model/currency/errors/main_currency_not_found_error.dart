@@ -1,0 +1,1 @@
+class MainCurrencyNotFoundError extends Error {}

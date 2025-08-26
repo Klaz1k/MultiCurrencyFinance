@@ -1,22 +1,23 @@
 class BalanceAmount {
   late double _amount;
-  late final double _exchangeRate;
+  late final double exchangeRate;
 
   double get amount => this._amount;
-  double get exchangeRate => this._exchangeRate;
 
-  BalanceAmount({required double amount, required double exchangeRate}) : _exchangeRate = exchangeRate, _amount = amount;
+  BalanceAmount({required double amount, required this.exchangeRate}) : 
+    this._amount = amount;
 
 ({double remainder, BalanceAmount balanceSpent}) reduce(double amount) {
-    late ({double remainder, BalanceAmount balanceSpent}) result;
+    late double amountSpent;
 
     if (amount >= this._amount) {
-      result = (remainder: amount - this._amount, balanceSpent: BalanceAmount(amount: this._amount, exchangeRate: this._exchangeRate));
+      amountSpent = this._amount;
+      this._amount = 0;
     } else {
-      result = (remainder: 0, balanceSpent: BalanceAmount(amount: this._amount - amount, exchangeRate: this._exchangeRate));
+      amountSpent = amount;
       this._amount -= amount;
     }
 
-    return result;
+    return (remainder: amount - amountSpent, balanceSpent: BalanceAmount(amount: amountSpent, exchangeRate: this.exchangeRate));
   }
 }

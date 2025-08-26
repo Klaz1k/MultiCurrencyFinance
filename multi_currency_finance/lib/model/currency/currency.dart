@@ -1,19 +1,9 @@
 class Currency {
-  late final String _id;
-  late String _name;
-  late String _abbreviation;
-  late String _symbol;
+  late final String id;
+  late String name;
+  late String abbreviation;
+  late String symbol;
+  late final bool isMain; //TODO: Maybe find a way to make it changeable after it has been assigned (Meaning that exchange rates could change throughout the whole history and current accounts) Only maybe though
 
-  String get id => this._id;
-
-  String get name => this._name;
-  set name(String value) => this._name = value;
-
-  String get abbreviation => this._abbreviation;
-  set abbreviation(String value) => this._abbreviation = value;
-
-  String get symbol => this._symbol;
-  set symbol(String value) => this._symbol = value; 
-
-  Currency(this._id, this._name, this._abbreviation, this._symbol);
+  Currency({required this.id, required this.name, required this.abbreviation, required this.symbol, required this.isMain});
 }

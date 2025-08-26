@@ -7,43 +7,45 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 class CreateCurrencyService implements IService<CreateCurrencyRequest, CreateCurrencyResponse> {
   late final ICurrencyRepository _currencyRepository;
 
-  CreateCurrencyService(this._currencyRepository);
+  CreateCurrencyService({required ICurrencyRepository currencyRepository}) :
+    this._currencyRepository = currencyRepository;
 
   @override
   Future<Result<CreateCurrencyResponse>> execute(CreateCurrencyRequest params) async {
+    bool isMain = false;
+
+    final mainCurrencyResult = await this._currencyRepository.findMainCurrency();
+
+    if (mainCurrencyResult.isError) isMain = true; //If there is no main currency, then next one to be created is to be main
+    
     final uuidGenerator = UuidGenerator.instance;
-
-    final Currency newCurrency = Currency(
-      uuidGenerator.v4(),
-      params.currencyName,
-      params.currencyAbbreviation,
-      params.currencySymbol
+    
+    final saveResult = await this._currencyRepository.save(
+      Currency(
+        id: uuidGenerator.v4(),
+        name: params.currencyName,
+        abbreviation: params.currencyAbbreviation,
+        symbol: params.currencySymbol,
+        isMain: isMain
+      )
     );
-
-    final saveResult = await this._currencyRepository.save(newCurrency);
 
     if (saveResult.isError) return Result.failure(saveResult.error);
 
-    return Result.success(CreateCurrencyResponse(newCurrency.id));
+    return Result.success(CreateCurrencyResponse(currencyId: saveResult.value));
   }
 }
 
 class CreateCurrencyRequest {
-  late final String _currencyName;
-  late final String _currencyAbbreviation;
-  late final String _currencySymbol;
+  late final String currencyName;
+  late final String currencyAbbreviation;
+  late final String currencySymbol;
 
-  String get currencyName => this._currencyName;
-  String get currencyAbbreviation => this._currencyAbbreviation;
-  String get currencySymbol => this._currencySymbol;
-
-  CreateCurrencyRequest(this._currencyName, this._currencyAbbreviation, this._currencySymbol);
+  CreateCurrencyRequest({required this.currencyName, required this.currencyAbbreviation, required this.currencySymbol});
 }
 
 class CreateCurrencyResponse {
-  late final String _currencyId;
+  late final String currencyId;
 
-  String get currencyId => this._currencyId;
-
-  CreateCurrencyResponse(this._currencyId);
+  CreateCurrencyResponse({required this.currencyId});
 }
