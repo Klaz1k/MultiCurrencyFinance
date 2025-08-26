@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_entities.dart';
+import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_entities.dart';
+import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_entities.dart';
 import 'package:multi_currency_finance/view/account/accounts_screen.dart';
 import 'package:multi_currency_finance/view/transaction/transactions_screen.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +19,8 @@ void main() async {
 
   Hive.registerAdapter(AccountHiveObjectAdapter());
   Hive.registerAdapter(BalanceHiveObjectAdapter());
+  Hive.registerAdapter(CurrencyHiveObjectAdapter());
+  Hive.registerAdapter(TransactionHiveObjectAdapter());
 
   runApp(const MyApp());
 }
