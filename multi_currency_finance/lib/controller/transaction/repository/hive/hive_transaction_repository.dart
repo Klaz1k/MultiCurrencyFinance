@@ -23,8 +23,10 @@ class HiveTransactionRepository implements ITransactionRepository {
       }
       return Result.success(transactions);
     }
+    final sortedValues = box.values.toList();
+    sortedValues.sort((a, b) => b.date.compareTo(a.date));
 
-    for (final hiveTransaction in box.values.skip(page*perPage).take(perPage)) {
+    for (final hiveTransaction in sortedValues.skip(page*perPage).take(perPage)) {
       transactions.add(hiveTransaction.toDomain());
     }
 

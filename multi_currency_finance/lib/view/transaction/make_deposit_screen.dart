@@ -42,7 +42,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
-  final _exchangeRateController = TextEditingController(text: '1.0');
+  final _mainCurrencyEquivalentController = TextEditingController(text: '1.0');
 
   // final _accountService = MockAccountService();
   final _categoryService = MockCategoryService();
@@ -74,7 +74,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   void dispose() {
     _descriptionController.dispose();
     _amountController.dispose();
-    _exchangeRateController.dispose();
+    _mainCurrencyEquivalentController.dispose();
     super.dispose();
   }
 
@@ -96,7 +96,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
           categoryId: _selectedCategoryId,
           description: _descriptionController.text.trim(),
           amountDeposited: double.parse(_amountController.text), 
-          mainCurrencyEquivalent: double.parse(_exchangeRateController.text)
+          mainCurrencyEquivalent: double.parse(_mainCurrencyEquivalentController.text)
         )
       );
 
@@ -168,7 +168,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
 
                 // Exchange Rate
                 TextFormField(
-                  controller: _exchangeRateController,
+                  controller: _mainCurrencyEquivalentController,
                   decoration: const InputDecoration(
                     labelText: 'Main Currency Equivalent',
                     border: OutlineInputBorder(),

@@ -20,7 +20,14 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
     final currencyResult = await this._currencyRepository.findById(params.currencyId);
 
     if (currencyResult.isError) return Result.failure(currencyResult.error);
-    
+
+    late final double mainCurrencyEquivalent;
+    if (currencyResult.value.isMain) {
+      mainCurrencyEquivalent = params.amount;
+    } else {
+      mainCurrencyEquivalent = params.mainCurrencyEquivalent;
+    }
+
     final uuidGenerator = UuidGenerator.instance;
 
     final saveResult = await this._accountRepository.save(
@@ -29,7 +36,7 @@ class CreateAccountService implements IService<CreateAccountRequest, CreateAccou
         name: params.accountName,
         description: params.description,
         currencyId: currencyResult.value.id,
-        balance: Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.amount / params.mainCurrencyEquivalent)])
+        balance: Balance(balanceQueue: [BalanceAmount(amount: params.amount, exchangeRate: params.amount / mainCurrencyEquivalent)])
       )
     );
 
