@@ -69,5 +69,16 @@ class HiveCurrencyRepository implements ICurrencyRepository {
 
     return Result.success(currency.id);
   }
+  
+  @override
+  Future<Result<String>> delete(String id) async {
+    final box = await Hive.openBox(dbName);
+
+    if (!box.containsKey(id)) return Result.failure(CurrencyNotFoundError());
+
+    await box.delete(id);
+
+    return Result.success(id);
+  }
 
 }

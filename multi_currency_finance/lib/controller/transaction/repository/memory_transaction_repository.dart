@@ -52,5 +52,11 @@ class MemoryTransactionRepository implements ITransactionRepository {
     // TODO: implement findByMonth
     throw UnimplementedError();
   }
+  
+  @override
+  Future<Result<String>> delete(String id) {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
 
 }

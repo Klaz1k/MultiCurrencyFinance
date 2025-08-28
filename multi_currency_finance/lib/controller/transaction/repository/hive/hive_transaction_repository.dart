@@ -95,5 +95,16 @@ class HiveTransactionRepository implements ITransactionRepository {
 
     return Result.success(transaction.id);
   }
+  
+  @override
+  Future<Result<String>> delete(String id) async {
+    final box = await Hive.openBox(dbName);
+
+    if (!box.containsKey(id)) return Result.failure(TransactionNotFoundError());
+
+    await box.delete(id);
+
+    return Result.success(id);
+  }
 
 }

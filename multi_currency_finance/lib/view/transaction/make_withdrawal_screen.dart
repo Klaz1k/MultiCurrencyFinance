@@ -116,7 +116,7 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
                 // Display current balance if an account is selected
                 if (_selectedAccount != null) ...[
                   Text(
-                    'Current Balance: ${_selectedAccount!.currencySymbol}${_selectedAccount!.balance.getCurrentBalance().toStringAsFixed(2)}',
+                    'Current Balance: ${_selectedAccount?.currencySymbol}${_selectedAccount!.balance.getCurrentBalance().toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 16),

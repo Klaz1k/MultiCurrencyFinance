@@ -67,4 +67,15 @@ class HiveAccountRepository implements IAccountRepository {
 
     return Result.success(account.id);
   }
+  
+  @override
+  Future<Result<String>> delete(String id) async {
+    final box = await Hive.openBox(dbName);
+
+    if (!box.containsKey(id)) return Result.failure(AccountNotFoundError());
+
+    await box.delete(id);
+
+    return Result.success(id);
+  }
 }
