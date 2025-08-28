@@ -16,15 +16,39 @@ class HiveTransactionRepository implements ITransactionRepository {
   Future<Result<List<Transaction>>> findAll(int? page, int? perPage) async {
     final box = await Hive.openBox<TransactionHiveObject>(dbName);
     final List<Transaction> transactions = [];
+    final sortedValues = box.values.toList();
+    sortedValues.sort((a, b) => b.date.compareTo(a.date));
 
     if (page == null || perPage == null) {
-      for (final hiveTransaction in box.values) {
+      for (final hiveTransaction in sortedValues) {
         transactions.add(hiveTransaction.toDomain());
       }
       return Result.success(transactions);
     }
-    final sortedValues = box.values.toList();
+    
+
+    for (final hiveTransaction in sortedValues.skip(page*perPage).take(perPage)) {
+      transactions.add(hiveTransaction.toDomain());
+    }
+
+    return Result.success(transactions);
+  }
+
+  @override
+  Future<Result<List<Transaction>>> findByDate(int monthAsNumber, int year, int? page, int? perPage) async {
+    final box = await Hive.openBox<TransactionHiveObject>(dbName);
+    final List<Transaction> transactions = [];
+
+    final sortedValues = box.values.where((value) => ((value.date.month == monthAsNumber) && (value.date.year == year))).toList();
     sortedValues.sort((a, b) => b.date.compareTo(a.date));
+
+    if (page == null || perPage == null) {
+      for (final hiveTransaction in sortedValues) {
+        transactions.add(hiveTransaction.toDomain());
+      }
+      return Result.success(transactions);
+    }
+    
 
     for (final hiveTransaction in sortedValues.skip(page*perPage).take(perPage)) {
       transactions.add(hiveTransaction.toDomain());
