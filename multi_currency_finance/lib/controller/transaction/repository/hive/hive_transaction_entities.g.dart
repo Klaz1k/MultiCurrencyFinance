@@ -22,7 +22,7 @@ class TransactionHiveObjectAdapter extends TypeAdapter<TransactionHiveObject> {
       categoryId: fields[2] as String?,
       date: fields[3] as DateTime,
       currencyId: fields[4] as String,
-      description: fields[5] as String,
+      description: fields[5] as String?,
       transactedAmount: (fields[6] as List).cast<BalanceHiveObject>(),
       relatedAccountId: fields[7] as String,
     );
@@ -64,7 +64,7 @@ class TransactionHiveObjectAdapter extends TypeAdapter<TransactionHiveObject> {
 class TransactionTypeHiveObjectAdapter
     extends TypeAdapter<TransactionTypeHiveObject> {
   @override
-  final int typeId = 3;
+  final int typeId = 4;
 
   @override
   TransactionTypeHiveObject read(BinaryReader reader) {

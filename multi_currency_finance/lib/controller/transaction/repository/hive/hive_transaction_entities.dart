@@ -58,7 +58,7 @@ class TransactionHiveObject extends HiveObject {
   }
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 4)
 enum TransactionTypeHiveObject {
   @HiveField(0)
   Deposit,
