@@ -32,7 +32,8 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
         id: uuidGenerator.v4(), 
-        transactionType: TransactionType.Deposit,  
+        transactionType: TransactionType.Deposit,
+        categoryId: params.categoryId,
         date: DateTime.now(),
         currencyId: accountResult.value.currencyId, 
         description: params.description, 

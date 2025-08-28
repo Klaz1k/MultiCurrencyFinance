@@ -31,9 +31,11 @@ class MakeWithdrawalService implements IService<MakeWithdrawalRequest, MakeWithd
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
         id: uuidGenerator.v4(), 
-        transactionType: TransactionType.Withdrawal, 
+        transactionType: TransactionType.Withdrawal,
+        categoryId: params.categoryId,
         date: DateTime.now(), 
-        currencyId: accountResult.value.currencyId, 
+        currencyId: accountResult.value.currencyId,
+        description: params.description,
         transactedAmount: withdrawedBalance, 
         relatedAccountId: accountSaveResult.value
       )
