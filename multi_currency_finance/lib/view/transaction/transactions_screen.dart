@@ -203,6 +203,11 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                 if (index < _transactions.length) {
                   final transaction = _transactions[index];
                   final isExpanded = _expandedTransactions.contains(index);
+
+                  String? transferArrow;
+
+                  if (transaction.type == TransactionType.OutgoingTransfer) transferArrow = '==>';
+                  if (transaction.type == TransactionType.IncomingTransfer) transferArrow = '<==';
                   return Card(
                     color: _getTransactionTypeColor(_transactions[index].type),
                     margin: const EdgeInsets.symmetric(
@@ -228,7 +233,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                             ),
                             const SizedBox(height: 4.0),
                             Text(
-                              'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description}',
+                              'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
