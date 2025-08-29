@@ -103,7 +103,17 @@ class TransactionsScreenState extends State<TransactionsScreen> {
           year: int.tryParse(_yearController.text) ?? DateTime.now().year
         )
       );
-      if (newTransactionsResult.isError) return;
+      if (newTransactionsResult.isError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(newTransactionsResult.error.runtimeType.toString()),
+              duration: Durations.medium2,
+            )
+          );
+        }
+        return;
+      }
 
       setState(() {
         _transactions.addAll(newTransactionsResult.value.transactions);

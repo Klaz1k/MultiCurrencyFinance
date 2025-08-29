@@ -60,7 +60,17 @@ class AccountsScreenState extends State<AccountsScreen> {
         GetAllAccountsRequest(page: _currentPage, perPage: _perPage)
       );
 
-      if (newAccounts.isError) return;
+      if (newAccounts.isError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(newAccounts.error.runtimeType.toString()),
+              duration: Durations.medium2,
+            )
+          );
+        }
+        return;
+      }
 
       setState(() {
         _accounts.addAll(newAccounts.value.accounts);

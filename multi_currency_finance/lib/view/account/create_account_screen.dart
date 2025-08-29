@@ -60,7 +60,17 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     try {
       final currenciesResult = await this._getAllCurrenciesService.execute(GetAllCurrenciesRequest());
 
-      if (currenciesResult.isError) return;
+      if (currenciesResult.isError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(currenciesResult.error.runtimeType.toString()),
+              duration: Durations.medium2,
+            )
+          );
+        }
+        return;
+      }
 
       setState(() {
         _currencies = currenciesResult.value.currencies;

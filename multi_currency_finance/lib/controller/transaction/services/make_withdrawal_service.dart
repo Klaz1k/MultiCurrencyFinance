@@ -20,6 +20,7 @@ class MakeWithdrawalService implements IService<MakeWithdrawalRequest, MakeWithd
     final accountResult = await this._accountRepository.findById(params.accountId);
 
     if (accountResult.isError) return Result.failure(accountResult.error);
+    final rollbackAccount = accountResult.value.clone();
 
     final withdrawedBalance = accountResult.value.withdraw(params.amount);
     final accountSaveResult = await this._accountRepository.save(accountResult.value);
@@ -41,7 +42,10 @@ class MakeWithdrawalService implements IService<MakeWithdrawalRequest, MakeWithd
       )
     );
 
-    if (transactionSaveResult.isError) return Result.failure(transactionSaveResult.error);
+    if (transactionSaveResult.isError) {
+      await this._accountRepository.save(rollbackAccount);
+      return Result.failure(transactionSaveResult.error);
+    }
 
     return Result.success(MakeWithdrawalResponse(transactionId: transactionSaveResult.value));
   }

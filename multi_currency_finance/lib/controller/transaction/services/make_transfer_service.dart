@@ -54,11 +54,11 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
     }
 
     final incomingBalance = receivingAccountResult.value.deposit(
-        BalanceAmount(
-          amount: params.incomingAmount, 
-          exchangeRate: exchangeRate
-        )
-      );
+      BalanceAmount(
+        amount: params.incomingAmount, 
+        exchangeRate: exchangeRate
+      )
+    );
     final uuidGenerator = UuidGenerator.instance;
 
     final outgoingTransferSaveResult = await this._transactionRepository.save(
@@ -86,6 +86,9 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
     );
 
     if (incomingTranferSaveResult.isError) return Result.failure(incomingTranferSaveResult.error);
+
+    await this._accountRepository.save(transferingAccountResult.value);
+    await this._accountRepository.save(receivingAccountResult.value);
 
     return Result.success(
       MakeTransferResponse(
