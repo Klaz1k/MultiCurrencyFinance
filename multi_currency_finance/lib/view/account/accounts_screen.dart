@@ -157,7 +157,7 @@ class AccountCardState extends State<AccountCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.account.balance.balanceQueue.map((balanceAmount) => Text('Amount: ${balanceAmount.amount.toStringAsFixed(2)} (${(balanceAmount.amount/balanceAmount.exchangeRate).toStringAsFixed(2)})')).toList(),
+                  children: widget.account.balance.balanceQueue.map((balanceAmount) => Text('Amount: ${balanceAmount.amount.toStringAsFixed(2)} at ${balanceAmount.exchangeRate.toStringAsFixed(2)} (${(balanceAmount.amount/balanceAmount.exchangeRate).toStringAsFixed(2)})')).toList(),
                 ),
               ),
           ],
