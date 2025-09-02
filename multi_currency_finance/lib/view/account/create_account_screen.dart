@@ -84,9 +84,9 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      this._createAccountService.execute(
+      final createResult = await this._createAccountService.execute(
         CreateAccountRequest(
           accountName: _accountNameController.text, 
           currencyId: _selectedCurrency!.id, 
@@ -96,7 +96,7 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
         )
       );
 
-      Navigator.pop(context, true); // Pop the screen and return true
+      if (mounted) Navigator.pop(context, true);
     }
   }
 
