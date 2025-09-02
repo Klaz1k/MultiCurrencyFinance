@@ -37,24 +37,31 @@ class CreateCurrencyScreenState extends State<CreateCurrencyScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // final request = CreateCurrencyRequest(
-      //   name: _nameController.text,
-      //   abbreviation: _abbreviationController.text,
-      //   symbol: _symbolController.text,
-      // );
-      // print('Collected Data: ${request.toJson()}');
-      // Further processing (e.g., sending to an API) would go here
 
-      this._createCurrencyService.execute(
+      final createCurrencyResult = await this._createCurrencyService.execute(
         CreateCurrencyRequest(
           currencyName: _nameController.text, 
           currencyAbbreviation: _abbreviationController.text, 
           currencySymbol: _symbolController.text
         )
       );
-      Navigator.pop(context, true); // Pop the screen and return true
+
+      late final String snackBarText;
+      if (createCurrencyResult.isError) {
+        snackBarText = "Could not Create New Currency";
+      } else {
+        snackBarText = "Currency Succesfully Created";
+      }
+
+      if (mounted) {
+        Navigator.pop(context, true); // Pop the screen and return true
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(snackBarText)),
+        );
+      }
     }
   }
 

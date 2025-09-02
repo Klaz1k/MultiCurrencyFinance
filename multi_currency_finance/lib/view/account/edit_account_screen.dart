@@ -40,16 +40,29 @@ class EditAccountScreenState extends State<EditAccountScreen> {
       // print('Updating Account Name to: ${_accountNameController.text}');
       // print('Updating Account Description to: ${_descriptionController.text}');
 
-      await this._editAccountService.execute(
+      final accountEditResult = await this._editAccountService.execute(
         EditAccountRequest(
-            accountId: widget.account.id, 
-            accountName: _accountNameController.text,
-            accountDescription: _descriptionController.text
-          )
-        );
+          accountId: widget.account.id, 
+          accountName: _accountNameController.text,
+          accountDescription: _descriptionController.text
+        )
+      );
+
+      late final String snackBarText; 
+      if (accountEditResult.isError) {
+        snackBarText = "${widget.account.name} Could not be Edited";
+      } else {
+        snackBarText = '${widget.account.name} Succesfully Edited';
+      }
 
       // Simulate update and pop
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) {
+        Navigator.pop(context, true);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(snackBarText)),
+        );
+      }
     }
   }
 

@@ -95,8 +95,19 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
           description: _descriptionController.text.isEmpty ? null : _descriptionController.text
         )
       );
+      late final String snackBarText;
+      if (createResult.isError) {
+        snackBarText = "Account Could not be Created";
+      } else {
+        snackBarText = "Account Succesfully Created";
+      }
+      if (mounted) {
+        Navigator.pop(context, true);
 
-      if (mounted) Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(snackBarText))
+        );
+      }
     }
   }
 

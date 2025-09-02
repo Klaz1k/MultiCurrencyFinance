@@ -103,11 +103,6 @@ class AccountsScreenState extends State<AccountsScreen> {
       ),
     ).then((result) {
       if (result == true) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${account.name} Succesfully Edited')),
-          );
-        }
         
         _refreshAccounts();
       }
@@ -142,7 +137,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                   }
                 } else {
                   setState(() {
-                    _accounts.removeWhere((a) => a.id == account.id);
+                    _accounts.removeWhere((a) => a.id == deleteResult.value.accountId);
                   });
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -190,11 +185,6 @@ class AccountsScreenState extends State<AccountsScreen> {
             MaterialPageRoute(builder: (context) => CreateAccountScreen()),
           ).then((result) {
             if (result == true) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Account Created')),
-                );
-              }
               _refreshAccounts();
             }
           });
