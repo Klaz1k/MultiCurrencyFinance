@@ -34,4 +34,8 @@ class Account {
   double getTotalBalance() {
     return this._balance.getCurrentBalance();
   }
+
+  bool removeBalance(BalanceAmount balanceAmount) { 
+    return this._balance.removeBalanceAmount(balanceAmount);
+  }
 }

@@ -22,13 +22,13 @@ class Balance {
     return currentBalance;
   }
 
-double exchangedBalance() {
-  double exchangedBalance = 0;
-  for (BalanceAmount subBalance in this._balanceQueue) {
-    exchangedBalance += (subBalance.amount/subBalance.exchangeRate);
+  double exchangedBalance() {
+    double exchangedBalance = 0;
+    for (BalanceAmount subBalance in this._balanceQueue) {
+      exchangedBalance += (subBalance.amount / subBalance.exchangeRate);
+    }
+    return exchangedBalance;
   }
-  return exchangedBalance;
-}
 
   BalanceAmount add(BalanceAmount amount) {
     this._balanceQueue.add(amount);
@@ -51,5 +51,19 @@ double exchangedBalance() {
     }
 
     return returnList;
+  }
+
+  bool removeBalanceAmount(BalanceAmount balanceAmountToRemove) {
+    if (this._balanceQueue.isEmpty) return false;
+    
+    final balanceTail = this._balanceQueue.removeLast();
+
+    if (balanceTail.equals(balanceAmountToRemove)) {
+      return true;
+    } else {
+      final removeResult = removeBalanceAmount(balanceAmountToRemove);
+      this.add(balanceTail);
+      return removeResult;
+    }
   }
 }

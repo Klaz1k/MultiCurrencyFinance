@@ -36,6 +36,7 @@ class GetTransactionsByDateService implements IService<GetTransactionsByDateRequ
 
       transactionList.add(
         TransactionData(
+          id: transaction.id,
           type: transaction.transactionType, 
           date: transaction.date, 
           currencySymbol: currencySymbol,

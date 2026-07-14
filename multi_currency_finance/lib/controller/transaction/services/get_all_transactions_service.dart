@@ -36,6 +36,7 @@ class GetAllTransactionsService implements IService<GetAllTransactionsRequest, G
 
       transactionList.add(
         TransactionData(
+          id: transaction.id,
           type: transaction.transactionType, 
           date: transaction.date, 
           currencySymbol: currencySymbol,

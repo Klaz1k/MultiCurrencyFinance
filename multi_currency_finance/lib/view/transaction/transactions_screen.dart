@@ -7,6 +7,7 @@ import 'package:multi_currency_finance/controller/currency/repository/hive/hive_
 import 'package:multi_currency_finance/controller/transaction/entities/transaction_data.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
 // import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
+import 'package:multi_currency_finance/controller/transaction/services/delete_transaction_service.dart';
 import 'package:multi_currency_finance/controller/transaction/services/get_transactions_by_date_service.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
@@ -49,6 +50,12 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     transactionRepository: HiveTransactionRepository.instance, 
     accountRepository: HiveAccountRepository.instance, 
     currencyRepository: HiveCurrencyRepository.instance
+  );
+
+  final IService<DeleteTransactionRequest, DeleteTransactionResponse> _deleteTransactionService = DeleteTransactionService(
+    transactionRepository: HiveTransactionRepository.instance,
+    accountRepository: HiveAccountRepository.instance,
+    currencyRepository: HiveCurrencyRepository.instance,
   );
 
   @override
@@ -146,6 +153,59 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     await _loadTransactions();
   }
 
+  void _deleteTransaction(TransactionData transaction) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Transaction'),
+          content: Text(
+            'Are you sure you want to delete this ${transaction.type.name} of '
+            '${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} '
+            'on ${transaction.date.toLocal().toString().split(' ')[0]}?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+
+                final deleteResult = await _deleteTransactionService.execute(
+                  DeleteTransactionRequest(transactionId: transaction.id),
+                );
+
+                if (deleteResult.isError) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Transaction could not be deleted'),
+                      ),
+                    );
+                  }
+                } else {
+                  setState(() {
+                    _transactions.removeWhere((t) => t.id == transaction.id);
+                  });
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Transaction successfully deleted'),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,57 +268,81 @@ class TransactionsScreenState extends State<TransactionsScreen> {
 
                   if (transaction.type == TransactionType.OutgoingTransfer) transferArrow = '==>';
                   if (transaction.type == TransactionType.IncomingTransfer) transferArrow = '<==';
-                  return Card(
-                    color: _getTransactionTypeColor(_transactions[index].type),
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 4.0,
-                    ),
-                    child: InkWell(
-                      onTap: () => _toggleExpand(index),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              transaction.type.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              'Date: ${transaction.date.toLocal().toString().split(' ')[0]}',
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (isExpanded)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Balance Amounts:',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    ...transaction.balanceList.map(
-                                      (ba) => Text(
-                                        'Amount: ${ba.amount.toStringAsFixed(2)}, Rate: ${ba.exchangeRate.toStringAsFixed(2)}',
-                                      ),
-                                    ),
-                                  ],
+                  return GestureDetector(
+                    onLongPressStart: (details) {
+                      final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+                      showMenu<String>(
+                        context: context,
+                        position: RelativeRect.fromLTRB(
+                          details.globalPosition.dx,
+                          details.globalPosition.dy,
+                          overlay.size.width - details.globalPosition.dx,
+                          overlay.size.height - details.globalPosition.dy,
+                        ),
+                        items: const <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      ).then((String? value) {
+                        if (value == 'delete') {
+                          _deleteTransaction(transaction);
+                        }
+                      });
+                    },
+                    child: Card(
+                      color: _getTransactionTypeColor(_transactions[index].type),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 4.0,
+                      ),
+                      child: InkWell(
+                        onTap: () => _toggleExpand(index),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                transaction.type.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                          ],
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Date: ${transaction.date.toLocal().toString().split(' ')[0]}',
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (isExpanded)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Balance Amounts:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      ...transaction.balanceList.map(
+                                        (ba) => Text(
+                                          'Amount: ${ba.amount.toStringAsFixed(2)}, Rate: ${ba.exchangeRate.toStringAsFixed(2)}',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -7,7 +7,7 @@ class BalanceAmount {
   BalanceAmount({required double amount, required this.exchangeRate}) : 
     this._amount = amount;
 
-({double remainder, BalanceAmount balanceSpent}) reduce(double amount) {
+  ({double remainder, BalanceAmount balanceSpent}) reduce(double amount) {
     late double amountSpent;
 
     if (amount >= this._amount) {
@@ -19,5 +19,9 @@ class BalanceAmount {
     }
 
     return (remainder: amount - amountSpent, balanceSpent: BalanceAmount(amount: amountSpent, exchangeRate: this.exchangeRate));
+  }
+
+  bool equals(BalanceAmount other) {
+    return (this._amount == other.amount) && (this.exchangeRate == other.exchangeRate);
   }
 }
