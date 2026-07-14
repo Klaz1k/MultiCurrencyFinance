@@ -22,6 +22,17 @@ class Transaction {
     required this.relatedAccountId
   });
 
+  Transaction clone() {
+    return Transaction(
+      id: this.id, 
+      transactionType: this.transactionType, 
+      date: this.date, 
+      currencyId: this.currencyId, 
+      transactedAmount: this.transactedAmount, 
+      relatedAccountId: this.relatedAccountId
+    );
+  }
+
   double getTotalTransacted() {
     double total = 0;
     for (BalanceAmount balanceAmount in this.transactedAmount) {

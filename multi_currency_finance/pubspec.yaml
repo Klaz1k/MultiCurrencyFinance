@@ -1,7 +1,7 @@
 name: multi_currency_finance
 description: "An app to manage finances involving multiple currencies"
 publish_to: 'none'
-version: 0.1.2
+version: 0.2.0
 
 environment:
   sdk: ^3.8.1
@@ -16,8 +16,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  build_runner: ^2.5.4
+  flutter_lints: ^6.0.0
+  build_runner: 2.4.13
   hive_generator: ^2.0.1
 
 flutter:

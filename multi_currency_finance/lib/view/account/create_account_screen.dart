@@ -60,7 +60,17 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     try {
       final currenciesResult = await this._getAllCurrenciesService.execute(GetAllCurrenciesRequest());
 
-      if (currenciesResult.isError) return;
+      if (currenciesResult.isError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(currenciesResult.error.runtimeType.toString()),
+              duration: Durations.medium2,
+            )
+          );
+        }
+        return;
+      }
 
       setState(() {
         _currencies = currenciesResult.value.currencies;
@@ -74,9 +84,9 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      this._createAccountService.execute(
+      final createResult = await this._createAccountService.execute(
         CreateAccountRequest(
           accountName: _accountNameController.text, 
           currencyId: _selectedCurrency!.id, 
@@ -85,8 +95,19 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
           description: _descriptionController.text.isEmpty ? null : _descriptionController.text
         )
       );
+      late final String snackBarText;
+      if (createResult.isError) {
+        snackBarText = "Account Could not be Created";
+      } else {
+        snackBarText = "Account Succesfully Created";
+      }
+      if (mounted) {
+        Navigator.pop(context, true);
 
-      Navigator.pop(context, true); // Pop the screen and return true
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(snackBarText))
+        );
+      }
     }
   }
 

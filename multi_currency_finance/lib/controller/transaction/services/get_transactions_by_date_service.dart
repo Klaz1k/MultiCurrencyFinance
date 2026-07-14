@@ -5,19 +5,19 @@ import 'package:multi_currency_finance/model/common/result/result.dart';
 import 'package:multi_currency_finance/model/currency/repository/currency_repository.interface.dart';
 import 'package:multi_currency_finance/model/transaction/repository/transaction_repository.interface.dart';
 
-class GetAllTransactionsService implements IService<GetAllTransactionsRequest, GetAllTransactionsResponse> {
+class GetTransactionsByDateService implements IService<GetTransactionsByDateRequest, GetTransactionsByDateResponse> {
   late final ITransactionRepository _transactionRepository;
   late final IAccountRepository _accountRepository;
   late final ICurrencyRepository _currencyRepository;
 
-  GetAllTransactionsService({required ITransactionRepository transactionRepository, required IAccountRepository accountRepository, required ICurrencyRepository currencyRepository}) : 
+  GetTransactionsByDateService({required ITransactionRepository transactionRepository, required IAccountRepository accountRepository, required ICurrencyRepository currencyRepository}) : 
     this._transactionRepository = transactionRepository,
     this._accountRepository = accountRepository,
     this._currencyRepository = currencyRepository;
 
   @override
-  Future<Result<GetAllTransactionsResponse>> execute(GetAllTransactionsRequest params) async {
-    final transactionsResult = await this._transactionRepository.findAll(params.page, params.perPage);
+  Future<Result<GetTransactionsByDateResponse>> execute(GetTransactionsByDateRequest params) async {
+    final transactionsResult = await this._transactionRepository.findByDate(params.monthAsNumber, params.year, params.page, params.perPage);
 
     if (transactionsResult.isError) return Result.failure(transactionsResult.error);
 
@@ -49,19 +49,23 @@ class GetAllTransactionsService implements IService<GetAllTransactionsRequest, G
       );
     }
 
-    return Result.success(GetAllTransactionsResponse(transactions: transactionList));
+    return Result.success(GetTransactionsByDateResponse(transactions: transactionList));
   }
+
+  
 }
 
-class GetAllTransactionsRequest {
+class GetTransactionsByDateRequest {
   late final int? page;
   late final int? perPage;
+  late final int monthAsNumber;
+  late final int year;
 
-  GetAllTransactionsRequest({this.page, this.perPage});
+  GetTransactionsByDateRequest({this.page, this.perPage, required this.monthAsNumber, required this.year});
 }
 
-class GetAllTransactionsResponse {
+class GetTransactionsByDateResponse {
   late final List<TransactionData> transactions;
 
-  GetAllTransactionsResponse({required this.transactions});
+  GetTransactionsByDateResponse({required this.transactions});
 }

@@ -50,5 +50,11 @@ class MemoryAccountRepository implements IAccountRepository {
     this._accountList.add(account);
     return Result.success(account.id);
   }
+  
+  @override
+  Future<Result<String>> delete(String id) {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
 
 }

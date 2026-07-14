@@ -2,6 +2,7 @@ import 'package:multi_currency_finance/model/account/entities/balance_amount.dar
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 
 class TransactionData {
+  late final String id;
   late final TransactionType type;
   late final DateTime date;
   late final String currencySymbol;
@@ -12,6 +13,7 @@ class TransactionData {
   late final String relatedAccountName;
 
   TransactionData({
+    required this.id,
     required this.type,
     required this.date,
     required this.currencySymbol,

@@ -28,6 +28,7 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
 
     if (receivingAccountResult.isError) return Result.failure(receivingAccountResult.error);
 
+    final transferingAccountRollback = transferingAccountResult.value.clone();
     final outgoingBalance = transferingAccountResult.value.withdraw(params.outgoingAmount);
 
     final incomingCurrencyResult = await this._currencyRepository.findById(receivingAccountResult.value.currencyId);
@@ -54,11 +55,11 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
     }
 
     final incomingBalance = receivingAccountResult.value.deposit(
-        BalanceAmount(
-          amount: params.incomingAmount, 
-          exchangeRate: exchangeRate
-        )
-      );
+      BalanceAmount(
+        amount: params.incomingAmount, 
+        exchangeRate: exchangeRate
+      )
+    );
     final uuidGenerator = UuidGenerator.instance;
 
     final outgoingTransferSaveResult = await this._transactionRepository.save(
@@ -85,7 +86,25 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
       )
     );
 
-    if (incomingTranferSaveResult.isError) return Result.failure(incomingTranferSaveResult.error);
+    if (incomingTranferSaveResult.isError) {
+      this._transactionRepository.delete(outgoingTransferSaveResult.value);
+      return Result.failure(incomingTranferSaveResult.error);
+    }
+
+    final transferingSaveResult = await this._accountRepository.save(transferingAccountResult.value);
+    if (transferingSaveResult.isError) {
+      this._transactionRepository.delete(outgoingTransferSaveResult.value);
+      this._transactionRepository.delete(incomingTranferSaveResult.value);
+      return Result.failure(transferingSaveResult.error);
+    }
+
+    final receivingSaveResult = await this._accountRepository.save(receivingAccountResult.value);
+    if (receivingSaveResult.isError) {
+      this._transactionRepository.delete(outgoingTransferSaveResult.value);
+      this._transactionRepository.delete(incomingTranferSaveResult.value);
+      this._accountRepository.save(transferingAccountRollback);
+      return Result.failure(receivingSaveResult.error);
+    }
 
     return Result.success(
       MakeTransferResponse(

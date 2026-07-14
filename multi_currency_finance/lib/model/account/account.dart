@@ -13,6 +13,16 @@ class Account {
   Account({required this.id, required this.name, this.description, required this.currencyId, required Balance balance}) :
     this._balance = balance;
 
+  Account clone() {
+    return Account(
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      currencyId: this.currencyId,
+      balance: this._balance
+    );
+  }
+
   List<BalanceAmount> withdraw(double amount) {
     return this._balance.reduce(amount);
   }
@@ -23,5 +33,9 @@ class Account {
 
   double getTotalBalance() {
     return this._balance.getCurrentBalance();
+  }
+
+  bool removeBalance(BalanceAmount balanceAmount) { 
+    return this._balance.removeBalanceAmount(balanceAmount);
   }
 }

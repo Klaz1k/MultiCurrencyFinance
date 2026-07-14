@@ -53,4 +53,10 @@ class MemoryCurrencyRepository implements ICurrencyRepository {
 
     return Result.failure(MainCurrencyNotFoundError());
   }
+  
+  @override
+  Future<Result<String>> delete(String id) {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
 }

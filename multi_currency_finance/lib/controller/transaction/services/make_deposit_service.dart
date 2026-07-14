@@ -21,6 +21,7 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
     final accountResult = await this._accountRepository.findById(params.accountId);
 
     if (accountResult.isError) return Result.failure(accountResult.error);
+    final rollbackAccount = accountResult.value.clone();
 
     final depositedBalance = accountResult.value.deposit(BalanceAmount(amount: params.amountDeposited, exchangeRate: params.amountDeposited / params.mainCurrencyEquivalent));
     final accountSaveResult = await this._accountRepository.save(accountResult.value);
@@ -32,7 +33,8 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
         id: uuidGenerator.v4(), 
-        transactionType: TransactionType.Deposit,  
+        transactionType: TransactionType.Deposit,
+        categoryId: params.categoryId,
         date: DateTime.now(),
         currencyId: accountResult.value.currencyId, 
         description: params.description, 
@@ -40,7 +42,11 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
         relatedAccountId: accountResult.value.id
       )
     );
-    if (transactionSaveResult.isError) return Result.failure(transactionSaveResult.error);
+    
+    if (transactionSaveResult.isError) {
+      await this._accountRepository.save(rollbackAccount);
+      return Result.failure(transactionSaveResult.error);
+    }
 
     return Result.success(MakeDepositResponse(transactionId: transactionSaveResult.value));
   }

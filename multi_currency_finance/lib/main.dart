@@ -21,6 +21,7 @@ void main() async {
   Hive.registerAdapter(BalanceHiveObjectAdapter());
   Hive.registerAdapter(CurrencyHiveObjectAdapter());
   Hive.registerAdapter(TransactionHiveObjectAdapter());
+  Hive.registerAdapter(TransactionTypeHiveObjectAdapter());
 
   runApp(const MyApp());
 }
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Multi Currency Finance',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -51,6 +53,7 @@ class BottomNavBar extends StatefulWidget {
 
 class BottomNavBarState extends State<BottomNavBar> {
   int _page = 0;
+  final PageController _pageController = PageController();
   // final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   final List<Widget> _screens = [AccountsScreen(), TransactionsScreen()];
 
@@ -62,12 +65,26 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_page],
+      // body: _screens[_page],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) => {
+          setState(() {
+            _page = index;
+          })
+        },
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _page,
         onTap: (index) {
           setState(() {
             _page = index;
+            _pageController.animateToPage(
+              _page, 
+              duration: Durations.medium1, 
+              curve: Curves.ease
+            );
           });
         },
         selectedItemColor: Theme.of(

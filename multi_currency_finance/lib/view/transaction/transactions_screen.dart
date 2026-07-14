@@ -7,9 +7,25 @@ import 'package:multi_currency_finance/controller/currency/repository/hive/hive_
 import 'package:multi_currency_finance/controller/transaction/entities/transaction_data.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
 // import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
-import 'package:multi_currency_finance/controller/transaction/services/get_all_transactions_service.dart';
+import 'package:multi_currency_finance/controller/transaction/services/delete_transaction_service.dart';
+import 'package:multi_currency_finance/controller/transaction/services/get_transactions_by_date_service.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
+
+final Map<int, String> _months = {
+  1: 'January',
+  2: 'February',
+  3: 'March',
+  4: 'April',
+  5: 'May',
+  6: 'June',
+  7: 'July',
+  8: 'August',
+  9: 'September',
+  10: 'October',
+  11: 'November',
+  12: 'December',
+};
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -26,16 +42,26 @@ class TransactionsScreenState extends State<TransactionsScreen> {
   final ScrollController _scrollController = ScrollController();
   final Set<int> _expandedTransactions = {};
 
+  int _selectedMonth = DateTime.now().month;
+  late TextEditingController _yearController;
+
   //Temp
-  final IService<GetAllTransactionsRequest, GetAllTransactionsResponse> _getAllTransactionsService = GetAllTransactionsService(
+  final IService<GetTransactionsByDateRequest, GetTransactionsByDateResponse> _getTransactionsByDateService = GetTransactionsByDateService(
     transactionRepository: HiveTransactionRepository.instance, 
     accountRepository: HiveAccountRepository.instance, 
     currencyRepository: HiveCurrencyRepository.instance
   );
 
+  final IService<DeleteTransactionRequest, DeleteTransactionResponse> _deleteTransactionService = DeleteTransactionService(
+    transactionRepository: HiveTransactionRepository.instance,
+    accountRepository: HiveAccountRepository.instance,
+    currencyRepository: HiveCurrencyRepository.instance,
+  );
+
   @override
   void initState() {
     super.initState();
+    _yearController = TextEditingController(text: DateTime.now().year.toString());
     _loadTransactions();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -48,6 +74,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _yearController.dispose();
     super.dispose();
   }
 
@@ -75,13 +102,25 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     });
 
     try {
-      final newTransactionsResult = await _getAllTransactionsService.execute(
-        GetAllTransactionsRequest(
+      final newTransactionsResult = await _getTransactionsByDateService.execute(
+        GetTransactionsByDateRequest(
           page: this._currentPage,
-          perPage: this._perPage
+          perPage: this._perPage,
+          monthAsNumber: _selectedMonth,
+          year: int.tryParse(_yearController.text) ?? DateTime.now().year
         )
       );
-      if (newTransactionsResult.isError) return;
+      if (newTransactionsResult.isError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(newTransactionsResult.error.runtimeType.toString()),
+              duration: Durations.medium2,
+            )
+          );
+        }
+        return;
+      }
 
       setState(() {
         _transactions.addAll(newTransactionsResult.value.transactions);
@@ -105,80 +144,219 @@ class TransactionsScreenState extends State<TransactionsScreen> {
     });
   }
 
+  Future<void> _refreshTransactions() async {
+    setState(() {
+      _transactions.clear();
+      _currentPage = 0;
+      _expandedTransactions.clear();
+    });
+    await _loadTransactions();
+  }
+
+  void _deleteTransaction(TransactionData transaction) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Transaction'),
+          content: Text(
+            'Are you sure you want to delete this ${transaction.type.name} of '
+            '${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} '
+            'on ${transaction.date.toLocal().toString().split(' ')[0]}?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+
+                final deleteResult = await _deleteTransactionService.execute(
+                  DeleteTransactionRequest(transactionId: transaction.id),
+                );
+
+                if (deleteResult.isError) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Transaction could not be deleted'),
+                      ),
+                    );
+                  }
+                } else {
+                  setState(() {
+                    _transactions.removeWhere((t) => t.id == transaction.id);
+                  });
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Transaction successfully deleted'),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Transactions')),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: _transactions.length + (_isLoading ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index < _transactions.length) {
-            final transaction = _transactions[index];
-            final isExpanded = _expandedTransactions.contains(index);
-            String? transferArrow;
-            if (transaction.type == TransactionType.OutgoingTransfer) transferArrow = '==>';
-            if (transaction.type == TransactionType.IncomingTransfer) transferArrow = '<==';
-            return Card(
-              color: _getTransactionTypeColor(transaction.type),
-              margin: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: InkWell(
-                onTap: () => _toggleExpand(index),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Text(
-                      //   'Type: ${transaction.type.name}',
-                      //   style: const TextStyle(fontWeight: FontWeight.bold),
-                      // ),
-                      // const SizedBox(height: 4.0),
-                      Text(
-                        'Date: ${transaction.date.toLocal().toString().split(' ')[0]}',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _selectedMonth,
+                    items: List.generate(12, (index) {
+                      return DropdownMenuItem(
+                        value: index + 1,
+                        child: Text(_months[index + 1] ?? ''),
+                      );
+                    }),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedMonth = value;
+                        });
+
+                        _refreshTransactions();
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Month',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: TextField(
+                    controller: _yearController,
+                    decoration: const InputDecoration(
+                      labelText: 'Year',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (_) => _refreshTransactions(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: _transactions.length + (_isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index < _transactions.length) {
+                  final transaction = _transactions[index];
+                  final isExpanded = _expandedTransactions.contains(index);
+
+                  String? transferArrow;
+
+                  if (transaction.type == TransactionType.OutgoingTransfer) transferArrow = '==>';
+                  if (transaction.type == TransactionType.IncomingTransfer) transferArrow = '<==';
+                  return GestureDetector(
+                    onLongPressStart: (details) {
+                      final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+                      showMenu<String>(
+                        context: context,
+                        position: RelativeRect.fromLTRB(
+                          details.globalPosition.dx,
+                          details.globalPosition.dy,
+                          overlay.size.width - details.globalPosition.dx,
+                          overlay.size.height - details.globalPosition.dy,
+                        ),
+                        items: const <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      ).then((String? value) {
+                        if (value == 'delete') {
+                          _deleteTransaction(transaction);
+                        }
+                      });
+                    },
+                    child: Card(
+                      color: _getTransactionTypeColor(_transactions[index].type),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 4.0,
                       ),
-                      const SizedBox(height: 4.0),
-                      // Text('Currency: ${transaction.currencySymbol}'),
-                      // const SizedBox(height: 4.0),
-                      // Text('Description: ${transaction.description}'),
-                      // const SizedBox(height: 4.0),
-                      Text(
-                        'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      if (isExpanded)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                      child: InkWell(
+                        onTap: () => _toggleExpand(index),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Balance Amounts:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              ...transaction.balanceList.map(
-                                (ba) => Text(
-                                  'Amount: ${ba.amount.toStringAsFixed(2)}, Rate: ${ba.exchangeRate.toStringAsFixed(2)}',
+                              Text(
+                                transaction.type.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Date: ${transaction.date.toLocal().toString().split(' ')[0]}',
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Total: ${transaction.totalAmount.toStringAsFixed(2)}${transaction.currencySymbol} (${transaction.exchangedTotal.toStringAsFixed(2)})  ${transaction.description ?? ''}  ${transferArrow ?? ''}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (isExpanded)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Balance Amounts:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      ...transaction.balanceList.map(
+                                        (ba) => Text(
+                                          'Amount: ${ba.amount.toStringAsFixed(2)}, Rate: ${ba.exchangeRate.toStringAsFixed(2)}',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
                         ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          } else {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
-        },
+                      ),
+                    ),
+                  );
+                } else {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -189,9 +367,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
             ),
           ).then((result) {
             if (result == true) {
-              _transactions.clear();
-              _currentPage = 0;
-              _loadTransactions();
+              _refreshTransactions();
             }
           });
         },

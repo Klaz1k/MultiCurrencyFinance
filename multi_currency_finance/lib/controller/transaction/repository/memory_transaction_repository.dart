@@ -46,5 +46,17 @@ class MemoryTransactionRepository implements ITransactionRepository {
     this._transactionList.add(transaction);
     return Result.success(transaction.id);
   }
+  
+  @override
+  Future<Result<List<Transaction>>> findByDate(int monthAsNumber, int year, int? page, int? perPage) {
+    // TODO: implement findByMonth
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Result<String>> delete(String id) {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
 
 }
