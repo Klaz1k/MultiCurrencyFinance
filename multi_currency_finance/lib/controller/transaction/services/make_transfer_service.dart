@@ -128,5 +128,5 @@ class MakeTransferResponse {
   late final String outgoingTransactionId;
   late final String incomingTransactionId;
 
-  MakeTransferResponse({required outgoingTransactionId, required incomingTransactionId});
+  MakeTransferResponse({required this.outgoingTransactionId, required this.incomingTransactionId});
 }

@@ -218,7 +218,7 @@ class TransactionsScreenState extends State<TransactionsScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: _selectedMonth,
+                    initialValue: _selectedMonth,
                     items: List.generate(12, (index) {
                       return DropdownMenuItem(
                         value: index + 1,

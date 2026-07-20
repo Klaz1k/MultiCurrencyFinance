@@ -139,7 +139,7 @@ class CreateAccountScreenState extends State<CreateAccountScreen> {
                         Expanded(
                           child: DropdownButtonFormField<CurrencyData>(
                             decoration: InputDecoration(labelText: 'Currency'),
-                            value: _selectedCurrency,
+                            initialValue: _selectedCurrency,
                             items: _currencies.map((currency) {
                               return DropdownMenuItem<CurrencyData>(
                                 value: currency,

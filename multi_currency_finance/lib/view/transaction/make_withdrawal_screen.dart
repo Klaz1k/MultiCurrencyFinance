@@ -203,7 +203,7 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
         }
 
         return DropdownButtonFormField<String>(
-          value: _selectedAccountId,
+          initialValue: _selectedAccountId,
           decoration: const InputDecoration(
             labelText: 'Account',
             border: OutlineInputBorder(),
@@ -257,7 +257,7 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
         ];
 
         return DropdownButtonFormField<String>(
-          value: _selectedCategoryId,
+          initialValue: _selectedCategoryId,
           decoration: const InputDecoration(
             labelText: 'Category (Optional)',
             border: OutlineInputBorder(),
