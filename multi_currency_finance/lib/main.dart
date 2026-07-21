@@ -5,6 +5,7 @@ import 'package:multi_currency_finance/controller/account/repository/hive/hive_a
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_entities.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_entities.dart';
 import 'package:multi_currency_finance/view/account/accounts_screen.dart';
+import 'package:multi_currency_finance/view/settings/settings_screen.dart';
 import 'package:multi_currency_finance/view/transaction/transactions_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -55,7 +56,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   int _page = 0;
   final PageController _pageController = PageController();
   // final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
-  final List<Widget> _screens = [AccountsScreen(), TransactionsScreen()];
+  final List<Widget> _screens = [AccountsScreen(), TransactionsScreen(), SettingsScreen()];
 
   @override
   void initState() {
@@ -103,6 +104,10 @@ class BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Transactions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_rounded),
+            label: 'Settings',
           ),
         ],
       ),
