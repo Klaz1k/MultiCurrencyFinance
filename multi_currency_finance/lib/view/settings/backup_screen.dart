@@ -196,8 +196,7 @@ class BackupScreenState extends State<BackupScreen> {
                       'JSON files to a location of your choice.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color:
-                            colorScheme.onPrimaryContainer.withAlpha(200),
+                        color: colorScheme.onPrimaryContainer.withAlpha(200),
                       ),
                     ),
                   ],
@@ -287,8 +286,6 @@ class _StatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    print(status);
     
     if (status == null) return const SizedBox.shrink();
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/view/settings/backup_screen.dart';
+import 'package:multi_currency_finance/view/settings/restore_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -47,6 +48,33 @@ class SettingsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const BackupScreen(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colorScheme.outlineVariant),
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.restore_rounded,
+                color: colorScheme.error,
+              ),
+              title: const Text('Restore From Backup'),
+              subtitle: const Text(
+                  'Import application data from JSON files'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RestoreScreen(),
                 ),
               ),
             ),
