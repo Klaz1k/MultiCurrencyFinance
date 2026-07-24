@@ -47,7 +47,7 @@ class RestoreScreenState extends State<RestoreScreen> {
   // ── Pre-restore backup state ───────────────────────────────────────────────
   bool _wantsPreBackup = false;
   String? _backupDirectory;
-  bool _backupInProgress = false;
+  // bool _backupInProgress = false;
 
   String? _backupCurrenciesStatus;
   String? _backupAccountsStatus;
@@ -183,7 +183,7 @@ class RestoreScreenState extends State<RestoreScreen> {
 
   Future<bool> _runPreRestoreBackup() async {
     setState(() {
-      _backupInProgress = true;
+      // _backupInProgress = true;
       _backupCurrenciesStatus = null;
       _backupAccountsStatus = null;
       _backupTransactionsStatus = null;
@@ -196,7 +196,7 @@ class RestoreScreenState extends State<RestoreScreen> {
 
     if (result.isError) {
       setState(() {
-        _backupInProgress = false;
+        // _backupInProgress = false;
         _backupCurrenciesStatus = 'Failed to load data from database.';
         _backupAccountsStatus = 'Failed to load data from database.';
         _backupTransactionsStatus = 'Failed to load data from database.';
@@ -261,7 +261,7 @@ class RestoreScreenState extends State<RestoreScreen> {
       allOk = false;
     }
 
-    setState(() => _backupInProgress = false);
+    // setState(() => _backupInProgress = false);
     return allOk;
   }
 
