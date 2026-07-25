@@ -58,6 +58,71 @@ class HiveTransactionRepository implements ITransactionRepository {
   }
 
   @override
+  Future<Result<List<Transaction>>> findByCategoryAndDate(String? categoryId, int monthAsNumber, int year) async {
+    final box = await Hive.openBox<TransactionHiveObject>(dbName);
+
+    final List<Transaction> transactions = box.values.where(
+      (value) => ((value.categoryId == categoryId) && (value.date.month == monthAsNumber) && (value.date.year == year)) 
+    ).map(
+      (hiveEntity) => hiveEntity.toDomain()
+    ).toList();
+
+    return Result.success(transactions);
+  }
+
+  @override
+  Future<Result<Map<String, List<Transaction>>>> findExpensesByDateGroupedByCategory(int monthAsNumber, int year) async {
+    final box = await Hive.openBox<TransactionHiveObject>(dbName);
+
+    final Map<String, List<Transaction>> groupedTransactions = {};
+    groupedTransactions[""] = [];
+
+    for (final transaction in box.values.where((value) => ((value.transactionType == TransactionTypeHiveObject.Withdrawal) && (value.date.month == monthAsNumber) && (value.date.year == year)))) {
+      if (transaction.categoryId == null) {
+        groupedTransactions[""]!.add(transaction.toDomain());
+
+        continue;
+      }
+
+      if (!groupedTransactions.containsKey(transaction.categoryId)) {
+        groupedTransactions[transaction.categoryId!] = [transaction.toDomain()];
+
+      } else {
+        groupedTransactions[transaction.categoryId!]!.add(transaction.toDomain());
+
+      }
+    }
+
+    return Result.success(groupedTransactions);
+  }
+
+  @override
+  Future<Result<Map<String, List<Transaction>>>> findIncomeByDateGroupedByCategory(int monthAsNumber, int year) async {
+    final box = await Hive.openBox<TransactionHiveObject>(dbName);
+
+    final Map<String, List<Transaction>> groupedTransactions = {};
+    groupedTransactions[""] = [];
+
+    for (final transaction in box.values.where((value) => ((value.transactionType == TransactionTypeHiveObject.Deposit) && (value.date.month == monthAsNumber) && (value.date.year == year)))) {
+      if (transaction.categoryId == null) {
+        groupedTransactions[""]!.add(transaction.toDomain());
+
+        continue;
+      }
+
+      if (!groupedTransactions.containsKey(transaction.categoryId)) {
+        groupedTransactions[transaction.categoryId!] = [transaction.toDomain()];
+
+      } else {
+        groupedTransactions[transaction.categoryId!]!.add(transaction.toDomain());
+
+      }
+    }
+
+    return Result.success(groupedTransactions);
+  }
+
+  @override
   Future<Result<Transaction>> findById(String id) async {
     final box = await Hive.openBox<TransactionHiveObject>(dbName);
 
