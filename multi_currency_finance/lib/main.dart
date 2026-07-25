@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_entities.dart';
+import 'package:multi_currency_finance/controller/category/expense/repository/hive/hive_expense_category_entities.dart';
+import 'package:multi_currency_finance/controller/category/income/repository/hive/hive_income_category_entities.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_entities.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_entities.dart';
 import 'package:multi_currency_finance/view/account/accounts_screen.dart';
@@ -23,6 +25,8 @@ void main() async {
   Hive.registerAdapter(CurrencyHiveObjectAdapter());
   Hive.registerAdapter(TransactionHiveObjectAdapter());
   Hive.registerAdapter(TransactionTypeHiveObjectAdapter());
+  Hive.registerAdapter(ExpenseCategoryHiveObjectAdapter());
+  Hive.registerAdapter(IncomeCategoryHiveObjectAdapter());
 
   runApp(const MyApp());
 }
