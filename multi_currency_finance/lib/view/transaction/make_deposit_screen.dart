@@ -2,33 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 // import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
+import 'package:multi_currency_finance/controller/category/income/repository/hive/hive_income_category_repository.dart';
+import 'package:multi_currency_finance/controller/category/income/services/get_all_income_categories_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
 // import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
 // import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/make_deposit_service.dart';
+import 'package:multi_currency_finance/model/category/income/income_category.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
+import 'package:multi_currency_finance/view/category/create_income_category_screen.dart';
 
-
-// Temp data for Categories
-
-class CategoryData {
-  final String id;
-  final String name;
-
-  CategoryData({required this.id, required this.name});
-}
-
-// --- Mock Services ---
-class MockCategoryService {
-  Future<List<CategoryData>> getCategories() async {
-    await Future.delayed(
-      const Duration(milliseconds: 800),
-    ); // Simulate network delay
-    return []; // For now, lets just reflect the "No Category" option
-  }
-}
 // --- Screen Widget ---
 
 class MakeDepositScreen extends StatefulWidget {
@@ -44,21 +29,26 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   final _amountController = TextEditingController();
   final _mainCurrencyEquivalentController = TextEditingController(text: '1.0');
 
-  // final _accountService = MockAccountService();
-  final _categoryService = MockCategoryService();
-
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(
-    accountRepository: HiveAccountRepository.instance, 
-    currencyRepository: HiveCurrencyRepository.instance
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse>
+  _getAllAccountsService = GetAllAccountsService(
+    accountRepository: HiveAccountRepository.instance,
+    currencyRepository: HiveCurrencyRepository.instance,
   );
 
-  final IService<MakeDepositRequest, MakeDepositResponse> _makeDepositService = MakeDepositService(
-    transactionRepository: HiveTransactionRepository.instance, 
-    accountRepository: HiveAccountRepository.instance
+  final IService<GetAllIncomeCategoriesRequest, GetAllIncomeCategoriesResponse>
+  _getAllIncomeCategoriesService = GetAllIncomeCategoriesService(
+    expenseCategoryRepository: HiveIncomeCategoryRepository.instance,
   );
-  
+
+  final IService<MakeDepositRequest, MakeDepositResponse>
+  _makeDepositService = MakeDepositService(
+    transactionRepository: HiveTransactionRepository.instance,
+    accountRepository: HiveAccountRepository.instance,
+  );
+
   late Future<Result<GetAllAccountsResponse>> _accountsFuture;
-  late Future<List<CategoryData>> _categoriesFuture;
+  List<IncomeCategory> _categories = [];
+  bool _isLoadingCategories = true;
 
   String? _selectedAccountId;
   String? _selectedCategoryId;
@@ -67,7 +57,25 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   void initState() {
     super.initState();
     _accountsFuture = _getAllAccountsService.execute(GetAllAccountsRequest());
-    _categoriesFuture = _categoryService.getCategories();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoadingCategories = true);
+    final result = await _getAllIncomeCategoriesService
+        .execute(GetAllIncomeCategoriesRequest());
+    if (!mounted) return;
+    if (result.isError) {
+      setState(() => _isLoadingCategories = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load income categories.')),
+      );
+      return;
+    }
+    setState(() {
+      _categories = result.value.categories;
+      _isLoadingCategories = false;
+    });
   }
 
   @override
@@ -82,26 +90,16 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // final depositRequest = MakeDepositRequest(
-      //   accountId: _selectedAccountId!,
-      //   categoryId: _selectedCategoryId,
-      //   description: _descriptionController.text.trim(),
-      //   amount: double.parse(_amountController.text),
-      //   exchangeRate: double.parse(_exchangeRateController.text),
-      // );
-
-      await this._makeDepositService.execute(
+      await _makeDepositService.execute(
         MakeDepositRequest(
           accountId: _selectedAccountId!,
           categoryId: _selectedCategoryId,
           description: _descriptionController.text.trim(),
-          amountDeposited: double.parse(_amountController.text), 
-          mainCurrencyEquivalent: double.parse(_mainCurrencyEquivalentController.text)
-        )
+          amountDeposited: double.parse(_amountController.text),
+          mainCurrencyEquivalent:
+              double.parse(_mainCurrencyEquivalentController.text),
+        ),
       );
-
-      // ignore: avoid_print
-      // print('Submitting Deposit: $depositRequest');
 
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -226,7 +224,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
         if (snapshot.data!.isError) {
           return Center(child: Text('Error: ${snapshot.data!.error}'));
         }
-        
+
         return DropdownButtonFormField<String>(
           initialValue: _selectedAccountId,
           decoration: const InputDecoration(
@@ -253,45 +251,56 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
   }
 
   Widget _buildCategoryDropdown() {
-    return FutureBuilder<List<CategoryData>>(
-      future: _categoriesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    if (_isLoadingCategories) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        final items = [
-          const DropdownMenuItem<String>(
-            value: null,
-            child: Text('No Category'),
-          ),
-          if (snapshot.hasData)
-            ...snapshot.data!.map((category) {
-              return DropdownMenuItem<String>(
-                value: category.id,
-                child: Text(category.name),
-              );
-            }),
-        ];
+    final items = [
+      const DropdownMenuItem<String>(value: null, child: Text('No Category')),
+      ..._categories.map((category) {
+        return DropdownMenuItem<String>(
+          value: category.id,
+          child: Text(category.name),
+        );
+      }),
+    ];
 
-        return DropdownButtonFormField<String>(
-          initialValue: _selectedCategoryId,
-          decoration: const InputDecoration(
-            labelText: 'Category (Optional)',
-            border: OutlineInputBorder(),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            initialValue: _selectedCategoryId,
+            decoration: const InputDecoration(
+              labelText: 'Category (Optional)',
+              border: OutlineInputBorder(),
+            ),
+            hint: const Text('Select a category'),
+            items: items,
+            onChanged: (value) {
+              setState(() {
+                _selectedCategoryId = value;
+              });
+            },
           ),
-          hint: const Text('Select a category'),
-          items: items,
-          onChanged: (value) {
-            setState(() {
-              _selectedCategoryId = value;
+        ),
+        IconButton(
+          icon: const Icon(Icons.add),
+          tooltip: 'Create new income category',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateIncomeCategoryScreen(),
+              ),
+            ).then((result) {
+              if (result == true) {
+                _fetchCategories();
+              }
             });
           },
-        );
-      },
+        ),
+      ],
     );
   }
 }
