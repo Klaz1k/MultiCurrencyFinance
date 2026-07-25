@@ -7,9 +7,9 @@ class GetAllIncomeCategoriesService implements IService<GetAllIncomeCategoriesRe
   final IIncomeCategoryRepository _incomeCategoryRepository;
 
   GetAllIncomeCategoriesService({
-    required IIncomeCategoryRepository expenseCategoryRepository
+    required IIncomeCategoryRepository incomeCategoryRepository
   }) : 
-  _incomeCategoryRepository = expenseCategoryRepository;
+  _incomeCategoryRepository = incomeCategoryRepository;
 
   @override
   Future<Result<GetAllIncomeCategoriesResponse>> execute(GetAllIncomeCategoriesRequest params) async {

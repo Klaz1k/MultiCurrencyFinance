@@ -149,7 +149,8 @@ class HiveTransactionRepository implements ITransactionRepository {
       transaction.id, 
       TransactionHiveObject(
         id: transaction.id, 
-        transactionType: TransactionTypeHiveObject.values.firstWhere((type) => type.name == transaction.transactionType.name), 
+        transactionType: TransactionTypeHiveObject.values.firstWhere((type) => type.name == transaction.transactionType.name),
+        categoryId: transaction.categoryId, 
         date: transaction.date, 
         currencyId: transaction.currencyId, 
         description: transaction.description, 

@@ -37,7 +37,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
 
   final IService<GetAllIncomeCategoriesRequest, GetAllIncomeCategoriesResponse>
   _getAllIncomeCategoriesService = GetAllIncomeCategoriesService(
-    expenseCategoryRepository: HiveIncomeCategoryRepository.instance,
+    incomeCategoryRepository: HiveIncomeCategoryRepository.instance,
   );
 
   final IService<MakeDepositRequest, MakeDepositResponse>
@@ -90,6 +90,7 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      print(_selectedCategoryId);
       await _makeDepositService.execute(
         MakeDepositRequest(
           accountId: _selectedAccountId!,

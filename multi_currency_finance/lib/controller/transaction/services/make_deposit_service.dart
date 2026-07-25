@@ -10,7 +10,6 @@ import 'package:multi_currency_finance/model/transaction/transaction.dart';
 class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResponse> {
   late final IAccountRepository _accountRepository;
   late final ITransactionRepository _transactionRepository;
-  //TODO: CategoryRepository goes here
 
   MakeDepositService({required ITransactionRepository transactionRepository, required IAccountRepository accountRepository }) :
     _transactionRepository = transactionRepository,
@@ -29,7 +28,8 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
     if (accountSaveResult.isError) return Result.failure(accountSaveResult.error);
 
     final uuidGenerator = UuidGenerator.instance;
-
+    print(params.categoryId);
+    
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
         id: uuidGenerator.v4(), 
@@ -53,11 +53,11 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
 }
 
 class MakeDepositRequest {
-  late final String accountId;
-  late final String? categoryId;
-  late final String? description;
-  late final double amountDeposited;
-  late final double mainCurrencyEquivalent;
+  final String accountId;
+  final String? categoryId;
+  final String? description;
+  final double amountDeposited;
+  final double mainCurrencyEquivalent;
 
   MakeDepositRequest({required this.accountId, this.categoryId, this.description, required this.amountDeposited, required this.mainCurrencyEquivalent});
 }
