@@ -125,9 +125,6 @@ class _ReportsScreenState extends State<ReportsScreen>
   double _sumExchanged(List<ByCategoryTransactionData> txns) =>
       txns.fold(0.0, (sum, t) => sum + t.exchangedTotal);
 
-  double _sumTotal(List<ByCategoryTransactionData> txns) =>
-      txns.fold(0.0, (sum, t) => sum + t.totalAmount);
-
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -331,7 +328,7 @@ class _ReportsScreenState extends State<ReportsScreen>
   ) {
     final cardKey = 'expense-${category.id}';
     final isExpanded = _expandedCards.contains(cardKey);
-    final total = _sumTotal(transactions);
+
     final exchanged = _sumExchanged(transactions);
 
     return _buildCategoryCard(
@@ -339,7 +336,6 @@ class _ReportsScreenState extends State<ReportsScreen>
       isExpanded: isExpanded,
       categoryName: category.name,
       transactionCount: transactions.length,
-      total: total,
       exchanged: exchanged,
       transactions: transactions,
       cardColor: const Color(0xFFFFF5F5),
@@ -355,7 +351,6 @@ class _ReportsScreenState extends State<ReportsScreen>
   ) {
     final cardKey = 'income-${category.id}';
     final isExpanded = _expandedCards.contains(cardKey);
-    final total = _sumTotal(transactions);
     final exchanged = _sumExchanged(transactions);
 
     return _buildCategoryCard(
@@ -363,7 +358,6 @@ class _ReportsScreenState extends State<ReportsScreen>
       isExpanded: isExpanded,
       categoryName: category.name,
       transactionCount: transactions.length,
-      total: total,
       exchanged: exchanged,
       transactions: transactions,
       cardColor: const Color(0xFFF1FBF1),
@@ -380,7 +374,6 @@ class _ReportsScreenState extends State<ReportsScreen>
     required Color headerColor,
   }) {
     final isExpanded = _expandedCards.contains(cardKey);
-    final total = _sumTotal(transactions);
     final exchanged = _sumExchanged(transactions);
 
     return _buildCategoryCard(
@@ -388,7 +381,6 @@ class _ReportsScreenState extends State<ReportsScreen>
       isExpanded: isExpanded,
       categoryName: 'Uncategorized',
       transactionCount: transactions.length,
-      total: total,
       exchanged: exchanged,
       transactions: transactions,
       cardColor: color,
@@ -403,7 +395,6 @@ class _ReportsScreenState extends State<ReportsScreen>
     required bool isExpanded,
     required String categoryName,
     required int transactionCount,
-    required double total,
     required double exchanged,
     required List<ByCategoryTransactionData> transactions,
     required Color cardColor,
@@ -460,10 +451,6 @@ class _ReportsScreenState extends State<ReportsScreen>
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'Total: ${total.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      Text(
                         'Exchanged: ${exchanged.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -485,7 +472,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            txn.type.name,
+                            txn.description ?? "Not Especified",
                             style: const TextStyle(fontSize: 13),
                           ),
                           Text(

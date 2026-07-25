@@ -4,6 +4,7 @@ import 'package:multi_currency_finance/model/transaction/structures/transaction_
 class ByCategoryTransactionData {
   final String id;
   final TransactionType type;
+  final String? description;
   final List<BalanceAmount> balanceList;
   final double totalAmount;
   final double exchangedTotal;
@@ -11,6 +12,7 @@ class ByCategoryTransactionData {
   ByCategoryTransactionData({
     required this.id,
     required this.type,
+    this.description,
     required this.balanceList,
     required this.totalAmount,
     required this.exchangedTotal

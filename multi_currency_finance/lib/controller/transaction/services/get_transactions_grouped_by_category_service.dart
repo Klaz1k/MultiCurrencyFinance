@@ -32,7 +32,7 @@ class GetTransactionsGroupedByCategoryService implements IService<GetTransaction
 
     if (!groupedExpensesResult.isError) {
       groupedExpensesResult.value.forEach((categoryId, transactions) async {
-        final transactionsMapIterable = transactions.map((transaction) => ByCategoryTransactionData(id: transaction.id, type: transaction.transactionType, balanceList: transaction.transactedAmount, totalAmount: transaction.getTotalTransacted(), exchangedTotal: transaction.getExchangedTotal()));
+        final transactionsMapIterable = transactions.map((transaction) => ByCategoryTransactionData(id: transaction.id, type: transaction.transactionType, description: transaction.description, balanceList: transaction.transactedAmount, totalAmount: transaction.getTotalTransacted(), exchangedTotal: transaction.getExchangedTotal()));
         
         if (categoryId == "") {
           uncategorizedExpenses = transactionsMapIterable.toList();
@@ -51,7 +51,7 @@ class GetTransactionsGroupedByCategoryService implements IService<GetTransaction
 
     if (!groupedIncomeResult.isError) {
       groupedIncomeResult.value.forEach((categoryId, transactions) async {
-        final transactionsMapIterable = transactions.map((transaction) => ByCategoryTransactionData(id: transaction.id, type: transaction.transactionType, balanceList: transaction.transactedAmount, totalAmount: transaction.getTotalTransacted(), exchangedTotal: transaction.getExchangedTotal()));
+        final transactionsMapIterable = transactions.map((transaction) => ByCategoryTransactionData(id: transaction.id, type: transaction.transactionType, description: transaction.description, balanceList: transaction.transactedAmount, totalAmount: transaction.getTotalTransacted(), exchangedTotal: transaction.getExchangedTotal()));
         
         if (categoryId == "") {
           uncategorizedIncomes = transactionsMapIterable.toList();
