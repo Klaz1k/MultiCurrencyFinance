@@ -90,7 +90,6 @@ class _MakeDepositScreenState extends State<MakeDepositScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      print(_selectedCategoryId);
       await _makeDepositService.execute(
         MakeDepositRequest(
           accountId: _selectedAccountId!,

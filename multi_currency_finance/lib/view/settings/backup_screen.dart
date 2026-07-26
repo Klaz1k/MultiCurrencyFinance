@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 import 'package:multi_currency_finance/controller/backup/services/get_backup_data_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -68,52 +68,66 @@ class BackupScreenState extends State<BackupScreen> {
         .convert(data.transactions.map((t) => t.toJson()).toList());
     
     try {
-      final path = await FilePicker.getDirectoryPath(
-        dialogTitle: 'Pick location for backup files',
-        lockParentWindow: true
-      );
+      // final path = await FilePicker.getDirectoryPath(
+      //   dialogTitle: 'Pick location for backup files',
+      //   lockParentWindow: true
+      // );
 
-      if (path == null) {
-        setState(() {
-          _currenciesStatus = 'Save cancelled.';
-          _accountsStatus = 'Save cancelled.';
-          _transactionsStatus = 'Save cancelled.';
+      final directory = await getDownloadsDirectory();
+
+      if (directory == null) {
+          setState(() {
           _isLoading = false;
+          _currenciesStatus = 'Error: Could not find Downloads folder path';
+          _accountsStatus = 'Error: Could not find Downloads folder path';
+          _transactionsStatus = 'Error: Could not find Downloads folder path';
         });
         return;
       }
 
+      final path = "${directory.path}/MultiCurrencyBackups";
+
+      // if (path == null) {
+      //   setState(() {
+      //     _currenciesStatus = 'Save cancelled.';
+      //     _accountsStatus = 'Save cancelled.';
+      //     _transactionsStatus = 'Save cancelled.';
+      //     _isLoading = false;
+      //   });
+      //   return;
+      // }
+
       await _saveJsonFile(
-      fileName: 'currencies.json',
-      path: path,
-      content: currenciesJson,
-      onSuccess: (file) => setState(() {
-        _currenciesStatus = 'Saved to ${file.path}';
-        _currenciesSuccess = true;
-      })
-    );
+        fileName: 'currencies.json',
+        path: path,
+        content: currenciesJson,
+        onSuccess: (file) => setState(() {
+          _currenciesStatus = 'Saved to ${file.path}';
+          _currenciesSuccess = true;
+        })
+      );
 
-    await _saveJsonFile(
-      fileName: 'accounts.json',
-      path: path,
-      content: accountsJson,
-      onSuccess: (file) => setState(() {
-        _accountsStatus = 'Saved to ${file.path}';
-        _accountsSuccess = true;
-      })
-    );
+      await _saveJsonFile(
+        fileName: 'accounts.json',
+        path: path,
+        content: accountsJson,
+        onSuccess: (file) => setState(() {
+          _accountsStatus = 'Saved to ${file.path}';
+          _accountsSuccess = true;
+        })
+      );
 
-    await _saveJsonFile(
-      fileName: 'transactions.json',
-      path: path,
-      content: transactionsJson,
-      onSuccess: (file) => setState(() {
-        _transactionsStatus = 'Saved to ${file.path}';
-        _transactionsSuccess = true;
-      })
-    );
+      await _saveJsonFile(
+        fileName: 'transactions.json',
+        path: path,
+        content: transactionsJson,
+        onSuccess: (file) => setState(() {
+          _transactionsStatus = 'Saved to ${file.path}';
+          _transactionsSuccess = true;
+        })
+      );
 
-    setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
     } catch (e) {
       setState(() {
         _currenciesStatus = 'Error: $e';
@@ -134,6 +148,8 @@ class BackupScreenState extends State<BackupScreen> {
       // final bytes = utf8.encode(content);
       
       final file = File('$path/$fileName');
+
+      await file.parent.create(recursive: true);
 
       final writtenFile = await file.writeAsString(content);
 

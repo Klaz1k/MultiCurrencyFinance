@@ -28,7 +28,6 @@ class MakeDepositService implements IService<MakeDepositRequest, MakeDepositResp
     if (accountSaveResult.isError) return Result.failure(accountSaveResult.error);
 
     final uuidGenerator = UuidGenerator.instance;
-    print(params.categoryId);
     
     final transactionSaveResult = await this._transactionRepository.save(
       Transaction(
