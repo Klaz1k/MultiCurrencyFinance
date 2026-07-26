@@ -13,6 +13,7 @@ import 'package:multi_currency_finance/controller/currency/mappers/json/currency
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/mappers/json/transaction_json.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 class RestoreScreen extends StatefulWidget {
   const RestoreScreen({super.key});
@@ -171,12 +172,25 @@ class RestoreScreenState extends State<RestoreScreen> {
   }
 
   Future<void> _pickBackupDirectory() async {
-    final path = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Pick location for pre-restore backup',
-      lockParentWindow: true,
-    );
-    if (path == null) return;
-    setState(() => _backupDirectory = path);
+    // final path = await FilePicker.getDirectoryPath(
+    //   dialogTitle: 'Pick location for pre-restore backup',
+    //   lockParentWindow: true,
+    // );
+    final directory = await getDownloadsDirectory();
+    
+    if (directory == null) return;
+
+    final path = "${directory.path}/MultiCurrencyBackups";
+
+    setState(() {
+      _backupDirectory = path;
+      _backupCurrenciesStatus = "Will be saved to: $_backupDirectory";
+      _backupCurrenciesSuccess = true;
+      _backupAccountsStatus = "Will be saved to: $_backupDirectory";
+      _backupAccountsSuccess = true;
+      _backupTransactionsStatus = "Will be saved to: $_backupDirectory";
+      _backupTransactionsSuccess = true;
+    });
   }
 
   // ── Pre-restore backup ────────────────────────────────────────────────────
@@ -493,6 +507,8 @@ class RestoreScreenState extends State<RestoreScreen> {
                                 _backupCurrenciesStatus = null;
                                 _backupAccountsStatus = null;
                                 _backupTransactionsStatus = null;
+                              } else {
+                                _pickBackupDirectory();
                               }
                             }),
                     shape: RoundedRectangleBorder(
@@ -512,12 +528,12 @@ class RestoreScreenState extends State<RestoreScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: const Text('Backup destination folder'),
-                      trailing: TextButton(
-                        onPressed: _isLoading ? null : _pickBackupDirectory,
-                        child: Text(_backupDirectory == null ? 'Choose' : 'Change'),
-                      ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      // subtitle: const Text('Backup destination folder'),
+                      // trailing: TextButton(
+                      //   onPressed: _isLoading ? null : _pickBackupDirectory,
+                      //   child: Text(_backupDirectory == null ? 'Choose' : 'Change'),
+                      // ),
+                      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     // Backup status cards (shown after the backup runs)
                     if (_backupCurrenciesStatus != null ||
