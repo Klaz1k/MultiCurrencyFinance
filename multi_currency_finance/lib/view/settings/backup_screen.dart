@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 import 'package:multi_currency_finance/controller/backup/services/get_backup_data_service.dart';
+import 'package:multi_currency_finance/controller/category/expense/repository/hive/hive_expense_category_repository.dart';
+import 'package:multi_currency_finance/controller/category/income/repository/hive/hive_income_category_repository.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
@@ -22,15 +24,21 @@ class BackupScreenState extends State<BackupScreen> {
   String? _currenciesStatus;
   String? _accountsStatus;
   String? _transactionsStatus;
+  String? _expenseCategoriesStatus;
+  String? _incomeCategoriesStatus;
 
   bool _currenciesSuccess = false;
   bool _accountsSuccess = false;
   bool _transactionsSuccess = false;
+  bool _expenseCategoriesSuccess = false;
+  bool _incomeCategoriesSuccess = false;
 
   final IService<GetBackupDataRequest, GetBackupDataResponse> _getBackupDataService = GetBackupDataService(
     currencyRepository: HiveCurrencyRepository.instance,
     accountRepository: HiveAccountRepository.instance,
     transactionRepository: HiveTransactionRepository.instance,
+    expenseCategoryRepository: HiveExpenseCategoryRepository.instance,
+    incomeCategoryRepository: HiveIncomeCategoryRepository.instance
   );
 
   Future<void> _createBackup() async {
@@ -39,9 +47,14 @@ class BackupScreenState extends State<BackupScreen> {
       _currenciesStatus = null;
       _accountsStatus = null;
       _transactionsStatus = null;
+      _expenseCategoriesStatus = null;
+      _incomeCategoriesStatus = null;
+
       _currenciesSuccess = false;
       _accountsSuccess = false;
       _transactionsSuccess = false;
+      _expenseCategoriesSuccess = false;
+      _incomeCategoriesSuccess = false;
     });
 
     final result = await _getBackupDataService.execute(GetBackupDataRequest());
@@ -52,6 +65,8 @@ class BackupScreenState extends State<BackupScreen> {
         _currenciesStatus = 'Failed to load data from database.';
         _accountsStatus = 'Failed to load data from database.';
         _transactionsStatus = 'Failed to load data from database.';
+        _expenseCategoriesStatus = 'Failed to load data from database.';
+        _incomeCategoriesStatus = 'Failed to load data from database.';
       });
       return;
     }
@@ -67,6 +82,14 @@ class BackupScreenState extends State<BackupScreen> {
     final transactionsJson = const JsonEncoder.withIndent('  ')
         .convert(data.transactions.map((t) => t.toJson()).toList());
     
+    final expenseCategoriesJson = const JsonEncoder.withIndent('  ')
+        .convert(data.expenseCategories.map((t) => t.toJson()).toList());
+
+    final incomeCategoriesJson = const JsonEncoder.withIndent('  ')
+        .convert(data.incomeCategories.map((t) => t.toJson()).toList());
+
+
+
     try {
       // final path = await FilePicker.getDirectoryPath(
       //   dialogTitle: 'Pick location for backup files',
@@ -81,6 +104,8 @@ class BackupScreenState extends State<BackupScreen> {
           _currenciesStatus = 'Error: Could not find Downloads folder path';
           _accountsStatus = 'Error: Could not find Downloads folder path';
           _transactionsStatus = 'Error: Could not find Downloads folder path';
+          _expenseCategoriesStatus = 'Error: Could not find Downloads folder path';
+          _incomeCategoriesStatus = 'Error: Could not find Downloads folder path';
         });
         return;
       }
@@ -127,12 +152,34 @@ class BackupScreenState extends State<BackupScreen> {
         })
       );
 
+      await _saveJsonFile(
+        fileName: 'expenseCategories.json', 
+        path: path, 
+        content: expenseCategoriesJson, 
+        onSuccess: (file) => setState(() {
+          _expenseCategoriesStatus = 'Saved to ${file.path}';
+          _expenseCategoriesSuccess = true;
+        })
+      );
+
+      await _saveJsonFile(
+        fileName: 'incomeCategories.json', 
+        path: path, 
+        content: incomeCategoriesJson, 
+        onSuccess: (file) => setState(() {
+          _incomeCategoriesStatus = 'Saved to ${file.path}';
+          _incomeCategoriesSuccess = true;
+        })
+      );
+
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() {
         _currenciesStatus = 'Error: $e';
         _accountsStatus = 'Error: $e';
         _transactionsStatus = 'Error: $e';
+        _expenseCategoriesStatus = 'Error: $e';
+        _incomeCategoriesStatus = 'Error: $e';
       });
       return;
     }
@@ -225,7 +272,9 @@ class BackupScreenState extends State<BackupScreen> {
             // Status cards — only shown after a backup attempt
             if (_currenciesStatus != null ||
                 _accountsStatus != null ||
-                _transactionsStatus != null) ...[
+                _transactionsStatus != null ||
+                _expenseCategoriesStatus != null ||
+                _incomeCategoriesStatus != null) ...[
               Text(
                 'Export Results',
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -253,6 +302,20 @@ class BackupScreenState extends State<BackupScreen> {
                 status: _transactionsStatus,
                 isSuccess: _transactionsSuccess,
               ),
+              const SizedBox(height: 8),
+              _StatusCard(
+                label: 'expenseCategories.json',
+                icon: Icons.trending_down,
+                status: _expenseCategoriesStatus,
+                isSuccess: _expenseCategoriesSuccess,
+              ),
+              const SizedBox(height: 8),
+              _StatusCard(
+                label: 'incomeCategories.json',
+                icon: Icons.trending_up,
+                status: _incomeCategoriesStatus,
+                isSuccess: _incomeCategoriesSuccess,
+              ),
               const SizedBox(height: 24),
             ],
 
@@ -269,8 +332,7 @@ class BackupScreenState extends State<BackupScreen> {
                       ),
                     )
                   : const Icon(Icons.download_rounded),
-              label: Text(
-                  _isLoading ? 'Creating backup...' : 'Create Backup'),
+              label: Text(_isLoading ? 'Creating backup...' : 'Create Backup'),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

@@ -8,6 +8,10 @@ import 'package:multi_currency_finance/controller/account/repository/hive/hive_a
 import 'package:multi_currency_finance/controller/backup/services/clear_all_data_service.dart';
 import 'package:multi_currency_finance/controller/backup/services/get_backup_data_service.dart';
 import 'package:multi_currency_finance/controller/backup/services/load_data_from_backup_service.dart';
+import 'package:multi_currency_finance/controller/category/expense/mappers/json/expense_category_json.dart';
+import 'package:multi_currency_finance/controller/category/expense/repository/hive/hive_expense_category_repository.dart';
+import 'package:multi_currency_finance/controller/category/income/mappers/json/income_category_json.dart';
+import 'package:multi_currency_finance/controller/category/income/repository/hive/hive_income_category_repository.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/mappers/json/currency_json.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
@@ -24,25 +28,28 @@ class RestoreScreen extends StatefulWidget {
 
 class RestoreScreenState extends State<RestoreScreen> {
   // ── Services ───────────────────────────────────────────────────────────────
-  final IService<GetBackupDataRequest, GetBackupDataResponse>
-      _getBackupDataService = GetBackupDataService(
+  final IService<GetBackupDataRequest, GetBackupDataResponse> _getBackupDataService = GetBackupDataService(
     currencyRepository: HiveCurrencyRepository.instance,
     accountRepository: HiveAccountRepository.instance,
     transactionRepository: HiveTransactionRepository.instance,
+    expenseCategoryRepository: HiveExpenseCategoryRepository.instance,
+    incomeCategoryRepository: HiveIncomeCategoryRepository.instance
   );
 
-  final IService<ClearAllDataServiceRequest, ClearAllDataServiceResponse>
-      _clearAllDataService = ClearAllDataService(
+  final IService<ClearAllDataServiceRequest, ClearAllDataServiceResponse> _clearAllDataService = ClearAllDataService(
     currencyRepository: HiveCurrencyRepository.instance,
     accountRepository: HiveAccountRepository.instance,
     transactionRepository: HiveTransactionRepository.instance,
+    expenseCategoryRepository: HiveExpenseCategoryRepository.instance,
+    incomeCategoryRepository: HiveIncomeCategoryRepository.instance
   );
 
-  final IService<LoadDataFromBackupRequest, LoadDataFromBackupResponse>
-      _loadDataFromBackupService = LoadDataFromBackupService(
+  final IService<LoadDataFromBackupRequest, LoadDataFromBackupResponse> _loadDataFromBackupService = LoadDataFromBackupService(
     currencyRepository: HiveCurrencyRepository.instance,
     accountRepository: HiveAccountRepository.instance,
     transactionRepository: HiveTransactionRepository.instance,
+    expenseCategoryRepository: HiveExpenseCategoryRepository.instance,
+    incomeCategoryRepository: HiveIncomeCategoryRepository.instance
   );
 
   // ── Pre-restore backup state ───────────────────────────────────────────────
@@ -53,22 +60,33 @@ class RestoreScreenState extends State<RestoreScreen> {
   String? _backupCurrenciesStatus;
   String? _backupAccountsStatus;
   String? _backupTransactionsStatus;
+  String? _backupExpenseCategoriesStatus;
+  String? _backupIncomeCategoriesStatus;
+
   bool _backupCurrenciesSuccess = false;
   bool _backupAccountsSuccess = false;
   bool _backupTransactionsSuccess = false;
+  bool _backupExpenseCategoriesSuccess = false;
+  bool _backupIncomeCategoriesSuccess = false;
 
   // ── File-selection state ───────────────────────────────────────────────────
   String? _currenciesFilePath;
   String? _accountsFilePath;
   String? _transactionsFilePath;
+  String? _expenseCategoriesFilePath;
+  String? _incomeCategoriesFilePath;
 
   List<CurrencyJson>? _currencies;
   List<AccountJson>? _accounts;
   List<TransactionJson>? _transactions;
+  List<ExpenseCategoryJson>? _expenseCategories;
+  List<IncomeCategoryJson>? _incomeCategories;
 
   String? _currenciesParseError;
   String? _accountsParseError;
   String? _transactionsParseError;
+  String? _expenseCategoriesParseError;
+  String? _incomeCategoriesParseError;
 
   // ── Restore state ─────────────────────────────────────────────────────────
   bool _isLoading = false;
@@ -81,9 +99,13 @@ class RestoreScreenState extends State<RestoreScreen> {
       _currencies != null &&
       _accounts != null &&
       _transactions != null &&
+      _expenseCategories != null &&
+      _incomeCategories != null &&
       _currenciesParseError == null &&
       _accountsParseError == null &&
-      _transactionsParseError == null;
+      _transactionsParseError == null &&
+      _expenseCategoriesParseError == null &&
+      _incomeCategoriesParseError == null;
 
   bool get _canRestore =>
       _allFilesReady &&
@@ -171,6 +193,52 @@ class RestoreScreenState extends State<RestoreScreen> {
     }
   }
 
+  Future<void> _pickExpenseCategoriesFile() async {
+    final result = await FilePicker.pickFiles(
+      dialogTitle: 'Select expenseCategories.json',
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      lockParentWindow: true,
+    );
+    if (result == null || result.files.single.path == null) return;
+    final path = result.files.single.path!;
+    setState(() {
+      _expenseCategoriesFilePath = path;
+      _expenseCategories = null;
+      _expenseCategoriesParseError = null;
+    });
+    try {
+      final rows = await _readJsonArray(path);
+      final parsed = rows.map((e) => ExpenseCategoryJson.fromJson(e)).toList();
+      setState(() => _expenseCategories = parsed);
+    } catch (e) {
+      setState(() => _expenseCategoriesParseError = 'Error while parsing, please be sure to choose a correctly formatted json file');
+    }
+  }
+
+  Future<void> _pickIncomeCategoriesFile() async {
+    final result = await FilePicker.pickFiles(
+      dialogTitle: 'Select incomeCategories.json',
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      lockParentWindow: true,
+    );
+    if (result == null || result.files.single.path == null) return;
+    final path = result.files.single.path!;
+    setState(() {
+      _incomeCategoriesFilePath = path;
+      _incomeCategories = null;
+      _incomeCategoriesParseError = null;
+    });
+    try {
+      final rows = await _readJsonArray(path);
+      final parsed = rows.map((e) => IncomeCategoryJson.fromJson(e)).toList();
+      setState(() => _incomeCategories = parsed);
+    } catch (e) {
+      setState(() => _incomeCategoriesParseError = 'Error while parsing, please be sure to choose a correctly formatted json file');
+    }
+  }
+
   Future<void> _pickBackupDirectory() async {
     // final path = await FilePicker.getDirectoryPath(
     //   dialogTitle: 'Pick location for pre-restore backup',
@@ -190,6 +258,10 @@ class RestoreScreenState extends State<RestoreScreen> {
       _backupAccountsSuccess = true;
       _backupTransactionsStatus = "Will be saved to: $_backupDirectory";
       _backupTransactionsSuccess = true;
+      _backupExpenseCategoriesStatus = "Will be saved to: $_backupDirectory";
+      _backupExpenseCategoriesSuccess = true;
+      _backupIncomeCategoriesStatus = "Will be saved to: $_backupDirectory";
+      _backupIncomeCategoriesSuccess = true;
     });
   }
 
@@ -201,9 +273,14 @@ class RestoreScreenState extends State<RestoreScreen> {
       _backupCurrenciesStatus = null;
       _backupAccountsStatus = null;
       _backupTransactionsStatus = null;
+      _backupExpenseCategoriesStatus = null;
+      _backupIncomeCategoriesStatus = null;
+
       _backupCurrenciesSuccess = false;
       _backupAccountsSuccess = false;
       _backupTransactionsSuccess = false;
+      _backupExpenseCategoriesSuccess = false;
+      _backupIncomeCategoriesSuccess = false;
     });
 
     final result = await _getBackupDataService.execute(GetBackupDataRequest());
@@ -214,6 +291,8 @@ class RestoreScreenState extends State<RestoreScreen> {
         _backupCurrenciesStatus = 'Failed to load data from database.';
         _backupAccountsStatus = 'Failed to load data from database.';
         _backupTransactionsStatus = 'Failed to load data from database.';
+        _backupExpenseCategoriesStatus = 'Failed to load data from database.';
+        _backupIncomeCategoriesStatus = 'Failed to load data from database.';
       });
       return false;
     }
@@ -221,12 +300,16 @@ class RestoreScreenState extends State<RestoreScreen> {
     final data = result.value;
     final path = _backupDirectory!;
 
-    final currenciesJson = const JsonEncoder.withIndent('  ')
-        .convert(data.currencies.map((c) => c.toJson()).toList());
-    final accountsJson = const JsonEncoder.withIndent('  ')
-        .convert(data.accounts.map((a) => a.toJson()).toList());
-    final transactionsJson = const JsonEncoder.withIndent('  ')
-        .convert(data.transactions.map((t) => t.toJson()).toList());
+    final currenciesJson = const JsonEncoder.withIndent('  ').convert(data.currencies.map((c) => c.toJson()).toList());
+
+    final accountsJson = const JsonEncoder.withIndent('  ').convert(data.accounts.map((a) => a.toJson()).toList());
+
+    final transactionsJson = const JsonEncoder.withIndent('  ').convert(data.transactions.map((t) => t.toJson()).toList());
+
+    final expenseCategoriesJson = const JsonEncoder.withIndent('  ').convert(data.expenseCategories.map((t) => t.toJson()).toList());
+
+    final incomeCategoriesJson = const JsonEncoder.withIndent('  ').convert(data.incomeCategories.map((t) => t.toJson()).toList());
+
 
     bool allOk = true;
 
@@ -272,6 +355,36 @@ class RestoreScreenState extends State<RestoreScreen> {
       );
     } catch (e) {
       setState(() => _backupTransactionsStatus = 'Error: $e');
+      allOk = false;
+    }
+
+    try {
+      await _saveJsonFile(
+        fileName: 'expense_categories_preRestore.json',
+        path: path,
+        content: expenseCategoriesJson,
+        onSuccess: (file) => setState(() {
+          _backupExpenseCategoriesStatus = 'Saved to ${file.path}';
+          _backupExpenseCategoriesSuccess = true;
+        }),
+      );
+    } catch (e) {
+      setState(() => _backupExpenseCategoriesStatus = 'Error: $e');
+      allOk = false;
+    }
+
+    try {
+      await _saveJsonFile(
+        fileName: 'income_categories_preRestore.json',
+        path: path,
+        content: incomeCategoriesJson,
+        onSuccess: (file) => setState(() {
+          _backupIncomeCategoriesStatus = 'Saved to ${file.path}';
+          _backupIncomeCategoriesSuccess = true;
+        }),
+      );
+    } catch (e) {
+      setState(() => _backupIncomeCategoriesStatus = 'Error: $e');
       allOk = false;
     }
 
@@ -351,6 +464,16 @@ class RestoreScreenState extends State<RestoreScreen> {
                 label:
                     '${_transactions!.length} transaction${_transactions!.length == 1 ? '' : 's'}',
               ),
+              _ConfirmRow(
+                icon: Icons.trending_down,
+                label:
+                    '${_expenseCategories!.length} expenseCategor${_expenseCategories!.length == 1 ? 'y' : 'ies'}',
+              ),
+              _ConfirmRow(
+                icon: Icons.trending_up,
+                label:
+                    '${_incomeCategories!.length} incomeCategor${_incomeCategories!.length == 1 ? 'y' : 'ies'}',
+              ),
             ],
           ),
           actions: [
@@ -370,7 +493,7 @@ class RestoreScreenState extends State<RestoreScreen> {
       },
     );
 
-    if (confirmed != true) return;
+    if (confirmed == false) return;
 
     setState(() {
       _isLoading = true;
@@ -406,6 +529,8 @@ class RestoreScreenState extends State<RestoreScreen> {
         currencies: _currencies!,
         accounts: _accounts!,
         transactions: _transactions!,
+        expenseCategories: _expenseCategories!,
+        incomeCategories: _incomeCategories!
       ),
     );
 
@@ -418,6 +543,8 @@ class RestoreScreenState extends State<RestoreScreen> {
             '• ${_currencies!.length} currencies\n'
             '• ${_accounts!.length} accounts\n'
             '• ${_transactions!.length} transactions';
+            '• ${_expenseCategories!.length} expenseCategories';
+            '• ${_incomeCategories!.length} incomeCategories';
       }
     });
   }
@@ -507,12 +634,13 @@ class RestoreScreenState extends State<RestoreScreen> {
                                 _backupCurrenciesStatus = null;
                                 _backupAccountsStatus = null;
                                 _backupTransactionsStatus = null;
+                                _backupExpenseCategoriesStatus = null;
+                                _backupIncomeCategoriesStatus = null;
                               } else {
                                 _pickBackupDirectory();
                               }
                             }),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   if (_wantsPreBackup) ...[
                     const Divider(height: 1, indent: 16, endIndent: 16),
@@ -538,7 +666,9 @@ class RestoreScreenState extends State<RestoreScreen> {
                     // Backup status cards (shown after the backup runs)
                     if (_backupCurrenciesStatus != null ||
                         _backupAccountsStatus != null ||
-                        _backupTransactionsStatus != null) ...[
+                        _backupTransactionsStatus != null ||
+                        _backupExpenseCategoriesStatus != null ||
+                        _backupIncomeCategoriesStatus != null ) ...[
                       const Divider(height: 1, indent: 16, endIndent: 16),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
@@ -563,6 +693,20 @@ class RestoreScreenState extends State<RestoreScreen> {
                               icon: Icons.receipt_long_rounded,
                               status: _backupTransactionsStatus,
                               isSuccess: _backupTransactionsSuccess,
+                            ),
+                            const SizedBox(height: 6),
+                            _StatusCard(
+                              label: 'expense_categories.json',
+                              icon: Icons.trending_down,
+                              status: _backupExpenseCategoriesStatus,
+                              isSuccess: _backupExpenseCategoriesSuccess,
+                            ),
+                            const SizedBox(height: 6),
+                            _StatusCard(
+                              label: 'income_categories.json',
+                              icon: Icons.trending_up,
+                              status: _backupIncomeCategoriesStatus,
+                              isSuccess: _backupIncomeCategoriesSuccess,
                             ),
                           ],
                         ),
@@ -626,6 +770,32 @@ class RestoreScreenState extends State<RestoreScreen> {
                     parseError: _transactionsParseError,
                     isLoading: _isLoading,
                     onPick: _pickTransactionsFile,
+                    isFirst: false,
+                    isLast: false,
+                  ),
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  _FilePickerRow(
+                    icon: Icons.trending_down,
+                    label: 'ExpenseCategories',
+                    hint: 'expenseCategories.json',
+                    filePath: _expenseCategoriesFilePath,
+                    parsedCount: _expenseCategories?.length,
+                    parseError: _expenseCategoriesParseError,
+                    isLoading: _isLoading,
+                    onPick: _pickExpenseCategoriesFile,
+                    isFirst: false,
+                    isLast: false,
+                  ),
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  _FilePickerRow(
+                    icon: Icons.trending_up,
+                    label: 'IncomeCategories',
+                    hint: 'incomeCategories.json',
+                    filePath: _incomeCategoriesFilePath,
+                    parsedCount: _incomeCategories?.length,
+                    parseError: _incomeCategoriesParseError,
+                    isLoading: _isLoading,
+                    onPick: _pickIncomeCategoriesFile,
                     isFirst: false,
                     isLast: true,
                   ),
@@ -697,13 +867,17 @@ class RestoreScreenState extends State<RestoreScreen> {
   String _buildHintText() {
     if (_currenciesParseError != null ||
         _accountsParseError != null ||
-        _transactionsParseError != null) {
+        _transactionsParseError != null ||
+        _expenseCategoriesParseError != null ||
+        _incomeCategoriesParseError != null) {
       return 'Fix the file errors above to enable restore.';
     }
     final missing = <String>[];
     if (_currencies == null) missing.add('currencies');
     if (_accounts == null) missing.add('accounts');
     if (_transactions == null) missing.add('transactions');
+    if (_expenseCategories == null) missing.add('expense_categories');
+    if (_incomeCategories == null) missing.add('income_categories');
     if (missing.isNotEmpty) {
       return 'Select a file for: ${missing.join(', ')}.';
     }
