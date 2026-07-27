@@ -41,6 +41,7 @@ class GetTransactionsByDateService implements IService<GetTransactionsByDateRequ
           date: transaction.date, 
           currencySymbol: currencySymbol,
           description: transaction.description,
+          categoryId: transaction.categoryId,
           balanceList: transaction.transactedAmount, 
           totalAmount: transaction.getTotalTransacted(), 
           exchangedTotal: transaction.getExchangedTotal(), 

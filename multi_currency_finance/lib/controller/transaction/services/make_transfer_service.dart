@@ -65,7 +65,7 @@ class MakeTransferService implements IService<MakeTransferRequest, MakeTransferR
     final outgoingTransferSaveResult = await this._transactionRepository.save(
       Transaction(
         id: uuidGenerator.v4(), 
-        transactionType: TransactionType.OutgoingTransfer, 
+        transactionType: TransactionType.OutgoingTransfer,
         date: DateTime.now(), 
         currencyId: transferingAccountResult.value.currencyId, 
         transactedAmount: outgoingBalance, 

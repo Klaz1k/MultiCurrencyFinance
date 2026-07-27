@@ -34,9 +34,11 @@ class TransactionJson {
   factory TransactionJson.fromDomain(Transaction transaction) {
     return TransactionJson(
       id: transaction.id, 
-      transactionType: transaction.transactionType, 
+      transactionType: transaction.transactionType,
+      categoryId: transaction.categoryId,
       date: transaction.date, 
       currencyId: transaction.currencyId, 
+      description: transaction.description,
       transactedAmount: transaction.transactedAmount.map((balanceAmount) => BalanceAmountJson.fromDomain(balanceAmount)).toList(), 
       relatedAccountId: transaction.relatedAccountId
     );
@@ -45,9 +47,11 @@ class TransactionJson {
   Transaction toDomain() {
     return Transaction(
       id: this.id, 
-      transactionType: this.transactionType, 
+      transactionType: this.transactionType,
+      categoryId: this.categoryId,
       date: this.date, 
-      currencyId: this.currencyId, 
+      currencyId: this.currencyId,
+      description: this.description, 
       transactedAmount: this.transactedAmount.map((balanceAmount) => balanceAmount.toDomain()).toList(), 
       relatedAccountId: this.relatedAccountId
     );

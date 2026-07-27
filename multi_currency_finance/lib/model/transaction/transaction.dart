@@ -2,14 +2,14 @@ import 'package:multi_currency_finance/model/account/entities/balance_amount.dar
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 
 class Transaction {
-  late final String id;
-  late final TransactionType transactionType;
-  late final String? categoryId; //TODO: Right now this will never be !null, transaction category module is coming after initial release
-  late final DateTime date;
-  late final String currencyId;
-  late final String? description;
-  late final List<BalanceAmount> transactedAmount;
-  late final String relatedAccountId;
+  final String id;
+  final TransactionType transactionType;
+  String? categoryId;
+  final DateTime date;
+  final String currencyId;
+  String? description;
+  final List<BalanceAmount> transactedAmount;
+  final String relatedAccountId;
 
   Transaction({
     required this.id, 
@@ -26,8 +26,10 @@ class Transaction {
     return Transaction(
       id: this.id, 
       transactionType: this.transactionType, 
+      categoryId: this.categoryId,
       date: this.date, 
-      currencyId: this.currencyId, 
+      currencyId: this.currencyId,
+      description: this.description, 
       transactedAmount: this.transactedAmount, 
       relatedAccountId: this.relatedAccountId
     );

@@ -7,13 +7,12 @@ import 'package:multi_currency_finance/model/transaction/structures/transaction_
 import 'package:multi_currency_finance/model/transaction/transaction.dart';
 
 class MakeWithdrawalService implements IService<MakeWithdrawalRequest, MakeWithdrawalResponse> {
-  late final IAccountRepository _accountRepository;
-  late final ITransactionRepository _transactionRepository;
-  //TODO: ExpenseCategoryRepository
+  final IAccountRepository _accountRepository;
+  final ITransactionRepository _transactionRepository;
   
   MakeWithdrawalService({ required ITransactionRepository transactionRepository, required IAccountRepository accountRepository}) : 
-    this._accountRepository = accountRepository, 
-    this._transactionRepository = transactionRepository;
+    _accountRepository = accountRepository, 
+    _transactionRepository = transactionRepository;
 
   @override
   Future<Result<MakeWithdrawalResponse>> execute(MakeWithdrawalRequest params) async {

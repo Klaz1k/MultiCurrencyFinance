@@ -50,6 +50,7 @@ class TransactionHiveObject extends HiveObject {
     return Transaction(
       id: this.id, 
       transactionType: TransactionType.values.firstWhere((type) => type.name == this.transactionType.name),
+      categoryId: this.categoryId,
       description: this.description, 
       date: this.date, 
       currencyId: this.currencyId, 

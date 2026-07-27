@@ -11,6 +11,7 @@ import 'package:multi_currency_finance/controller/transaction/services/delete_tr
 import 'package:multi_currency_finance/controller/transaction/services/get_transactions_by_date_service.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/view/transaction/select_transaction_type_screen.dart';
+import 'package:multi_currency_finance/view/transaction/edit_transaction_screen.dart';
 
 final Map<int, String> _months = {
   1: 'January',
@@ -281,12 +282,28 @@ class TransactionsScreenState extends State<TransactionsScreen> {
                         ),
                         items: const <PopupMenuEntry<String>>[
                           PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Text('Edit'),
+                          ),
+                          PopupMenuItem<String>(
                             value: 'delete',
                             child: Text('Delete'),
                           ),
                         ],
                       ).then((String? value) {
-                        if (value == 'delete') {
+                        if (value == 'edit') {
+                          if (!context.mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditTransactionScreen(transaction: transaction),
+                            ),
+                          ).then((result) {
+                            if (result == true) {
+                              _refreshTransactions();
+                            }
+                          });
+                        } else if (value == 'delete') {
                           _deleteTransaction(transaction);
                         }
                       });
