@@ -1,8 +1,7 @@
 name: multi_currency_finance
 description: "An app to manage finances involving multiple currencies"
 publish_to: 'none'
-version: 0.3.5
-
+version: 0.4.0
 environment:
   sdk: ^3.8.1
 
