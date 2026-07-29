@@ -7,7 +7,7 @@ import 'package:multi_currency_finance/model/currency/repository/currency_reposi
 class GetAllCurrenciesService implements IService<GetAllCurrenciesRequest, GetAllCurrenciesResponse> {
   late final ICurrencyRepository _currencyRepository;
 
-  GetAllCurrenciesService({required currencyRepository}) :
+  GetAllCurrenciesService({required ICurrencyRepository currencyRepository}) :
     this._currencyRepository = currencyRepository;
 
   @override

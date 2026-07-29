@@ -3,33 +3,17 @@ import 'package:multi_currency_finance/controller/account/entities/account_data.
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_repository.dart';
 // import 'package:multi_currency_finance/controller/account/repository/memory_account_repository.dart';
 import 'package:multi_currency_finance/controller/account/services/get_all_accounts_service.dart';
+import 'package:multi_currency_finance/controller/category/expense/repository/hive/hive_expense_category_repository.dart';
+import 'package:multi_currency_finance/controller/category/expense/services/get_all_expense_categories_service.dart';
 import 'package:multi_currency_finance/controller/common/services/service.interface.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_repository.dart';
 // import 'package:multi_currency_finance/controller/currency/repository/memory_currency_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_repository.dart';
 // import 'package:multi_currency_finance/controller/transaction/repository/memory_transaction_repository.dart';
 import 'package:multi_currency_finance/controller/transaction/services/make_withdrawal_service.dart';
+import 'package:multi_currency_finance/model/category/expense/expense_category.dart';
 import 'package:multi_currency_finance/model/common/result/result.dart';
-
-// --- Data Models ---
-
-class CategoryData {
-  final String id;
-  final String name;
-
-  CategoryData({required this.id, required this.name});
-}
-
-// --- Mock Services ---
-
-class MockCategoryService {
-  Future<List<CategoryData>> getCategories() async {
-    await Future.delayed(
-      const Duration(milliseconds: 800),
-    ); // Simulate network delay
-    return [];
-  }
-}
+import 'package:multi_currency_finance/view/category/create_expense_category_screen.dart';
 
 // --- Screen Widget ---
 
@@ -45,20 +29,27 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
 
-  final _categoryService = MockCategoryService();
-
-  final IService<GetAllAccountsRequest, GetAllAccountsResponse> _getAllAccountsService = GetAllAccountsService(
-    accountRepository: HiveAccountRepository.instance, 
-    currencyRepository: HiveCurrencyRepository.instance
+  final IService<GetAllAccountsRequest, GetAllAccountsResponse>
+  _getAllAccountsService = GetAllAccountsService(
+    accountRepository: HiveAccountRepository.instance,
+    currencyRepository: HiveCurrencyRepository.instance,
   );
 
-  final IService<MakeWithdrawalRequest, MakeWithdrawalResponse> _makeWithdrawalService = MakeWithdrawalService(
-    transactionRepository: HiveTransactionRepository.instance, 
-    accountRepository: HiveAccountRepository.instance
+  final IService<GetAllExpenseCategoriesRequest,
+          GetAllExpenseCategoriesResponse>
+  _getAllExpenseCategoriesService = GetAllExpenseCategoriesService(
+    expenseCategoryRepository: HiveExpenseCategoryRepository.instance,
+  );
+
+  final IService<MakeWithdrawalRequest, MakeWithdrawalResponse>
+  _makeWithdrawalService = MakeWithdrawalService(
+    transactionRepository: HiveTransactionRepository.instance,
+    accountRepository: HiveAccountRepository.instance,
   );
 
   late Future<Result<GetAllAccountsResponse>> _accountsFuture;
-  late Future<List<CategoryData>> _categoriesFuture;
+  List<ExpenseCategory> _categories = [];
+  bool _isLoadingCategories = true;
 
   String? _selectedAccountId;
   AccountData? _selectedAccount; // New state variable for selected account data
@@ -68,7 +59,25 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
   void initState() {
     super.initState();
     _accountsFuture = _getAllAccountsService.execute(GetAllAccountsRequest());
-    _categoriesFuture = _categoryService.getCategories();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoadingCategories = true);
+    final result = await _getAllExpenseCategoriesService
+        .execute(GetAllExpenseCategoriesRequest());
+    if (!mounted) return;
+    if (result.isError) {
+      setState(() => _isLoadingCategories = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load expense categories.')),
+      );
+      return;
+    }
+    setState(() {
+      _categories = result.value.categories;
+      _isLoadingCategories = false;
+    });
   }
 
   @override
@@ -82,13 +91,13 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      await this._makeWithdrawalService.execute(
+      await _makeWithdrawalService.execute(
         MakeWithdrawalRequest(
           accountId: _selectedAccountId!,
-          categoryId: _selectedCategoryId, 
+          categoryId: _selectedCategoryId,
           description: _descriptionController.text.trim(),
-          amount: double.parse(_amountController.text)
-        )
+          amount: double.parse(_amountController.text),
+        ),
       );
 
       if (mounted) {
@@ -160,7 +169,8 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
                       return 'Amount must be greater than zero';
                     }
                     if (_selectedAccount != null &&
-                        number > _selectedAccount!.balance.getCurrentBalance()) {
+                        number >
+                            _selectedAccount!.balance.getCurrentBalance()) {
                       return 'Amount exceeds current balance';
                     }
                     return null;
@@ -203,7 +213,7 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
         }
 
         return DropdownButtonFormField<String>(
-          value: _selectedAccountId,
+          initialValue: _selectedAccountId,
           decoration: const InputDecoration(
             labelText: 'Account',
             border: OutlineInputBorder(),
@@ -232,45 +242,56 @@ class _MakeWithdrawalScreenState extends State<MakeWithdrawalScreen> {
   }
 
   Widget _buildCategoryDropdown() {
-    return FutureBuilder<List<CategoryData>>(
-      future: _categoriesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    if (_isLoadingCategories) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        final items = [
-          const DropdownMenuItem<String>(
-            value: null,
-            child: Text('No Category'),
-          ),
-          if (snapshot.hasData)
-            ...snapshot.data!.map((category) {
-              return DropdownMenuItem<String>(
-                value: category.id,
-                child: Text(category.name),
-              );
-            }),
-        ];
+    final items = [
+      const DropdownMenuItem<String>(value: null, child: Text('No Category')),
+      ..._categories.map((category) {
+        return DropdownMenuItem<String>(
+          value: category.id,
+          child: Text(category.name),
+        );
+      }),
+    ];
 
-        return DropdownButtonFormField<String>(
-          value: _selectedCategoryId,
-          decoration: const InputDecoration(
-            labelText: 'Category (Optional)',
-            border: OutlineInputBorder(),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            initialValue: _selectedCategoryId,
+            decoration: const InputDecoration(
+              labelText: 'Category (Optional)',
+              border: OutlineInputBorder(),
+            ),
+            hint: const Text('Select a category'),
+            items: items,
+            onChanged: (value) {
+              setState(() {
+                _selectedCategoryId = value;
+              });
+            },
           ),
-          hint: const Text('Select a category'),
-          items: items,
-          onChanged: (value) {
-            setState(() {
-              _selectedCategoryId = value;
+        ),
+        IconButton(
+          icon: const Icon(Icons.add),
+          tooltip: 'Create new expense category',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateExpenseCategoryScreen(),
+              ),
+            ).then((result) {
+              if (result == true) {
+                _fetchCategories();
+              }
             });
           },
-        );
-      },
+        ),
+      ],
     );
   }
 }

@@ -1,11 +1,12 @@
 import 'package:hive/hive.dart';
+import 'package:multi_currency_finance/controller/common/hive/hive_type_constants.dart';
 import 'package:multi_currency_finance/model/account/account.dart';
 import 'package:multi_currency_finance/model/account/entities/balance.dart';
 import 'package:multi_currency_finance/model/account/entities/balance_amount.dart';
 
 part 'hive_account_entities.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: HiveConstants.AccountHiveId)
 class AccountHiveObject extends HiveObject {
   @HiveField(0)
   late final String id;
@@ -35,7 +36,7 @@ class AccountHiveObject extends HiveObject {
   }
 }
 
-@HiveType(typeId: 1)
+@HiveType(typeId: HiveConstants.BalanceHiveId)
 class BalanceHiveObject {
   @HiveField(0)
   late double amount;

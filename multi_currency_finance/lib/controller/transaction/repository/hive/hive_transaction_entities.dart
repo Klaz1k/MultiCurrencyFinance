@@ -2,13 +2,14 @@
 
 import 'package:hive/hive.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_entities.dart';
+import 'package:multi_currency_finance/controller/common/hive/hive_type_constants.dart';
 import 'package:multi_currency_finance/model/transaction/structures/transaction_type.dart';
 import 'package:multi_currency_finance/model/transaction/transaction.dart';
 
 part 'hive_transaction_entities.g.dart';
 
 
-@HiveType(typeId: 3)
+@HiveType(typeId: HiveConstants.TransactionHiveId)
 class TransactionHiveObject extends HiveObject {
   @HiveField(0)
   late final String id;
@@ -49,6 +50,7 @@ class TransactionHiveObject extends HiveObject {
     return Transaction(
       id: this.id, 
       transactionType: TransactionType.values.firstWhere((type) => type.name == this.transactionType.name),
+      categoryId: this.categoryId,
       description: this.description, 
       date: this.date, 
       currencyId: this.currencyId, 
@@ -58,7 +60,7 @@ class TransactionHiveObject extends HiveObject {
   }
 }
 
-@HiveType(typeId: 4)
+@HiveType(typeId: HiveConstants.TransactionTypeHiveId)
 enum TransactionTypeHiveObject {
   @HiveField(0)
   Deposit,

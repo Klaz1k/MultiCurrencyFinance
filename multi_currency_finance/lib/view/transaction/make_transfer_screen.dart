@@ -98,7 +98,7 @@ class _MakeTransferScreenState extends State<MakeTransferScreen> {
               child: ListView(
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _transferingAccountId,
+                    initialValue: _transferingAccountId,
                     decoration: const InputDecoration(
                       labelText: 'From Account',
                       border: OutlineInputBorder(),
@@ -130,7 +130,7 @@ class _MakeTransferScreenState extends State<MakeTransferScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _receivingAccountId,
+                    initialValue: _receivingAccountId,
                     decoration: const InputDecoration(
                       labelText: 'To Account',
                       border: OutlineInputBorder(),

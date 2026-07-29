@@ -1,9 +1,10 @@
 import 'package:hive/hive.dart';
+import 'package:multi_currency_finance/controller/common/hive/hive_type_constants.dart';
 import 'package:multi_currency_finance/model/currency/currency.dart';
 
 part 'hive_currency_entities.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: HiveConstants.CurrencyHiveId)
 class CurrencyHiveObject extends HiveObject {
   @HiveField(0)
   late final String id;

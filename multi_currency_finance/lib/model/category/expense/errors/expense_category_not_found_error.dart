@@ -1,0 +1,1 @@
+class ExpenseCategoryNotFoundError extends Error {}

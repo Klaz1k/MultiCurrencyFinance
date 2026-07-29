@@ -68,7 +68,9 @@ class DeleteTransactionService implements IService<DeleteTransactionRequest, Del
       deletedTransaction: TransactionData(
         id: params.transactionId,
         type: transactionResult.value.transactionType, 
-        date: transactionResult.value.date, 
+        date: transactionResult.value.date,
+        description: transactionResult.value.description,
+        categoryId: transactionResult.value.categoryId,
         currencySymbol: currencySymbol, 
         balanceList: rollbackedAmount, 
         totalAmount: transactionResult.value.getTotalTransacted(), 

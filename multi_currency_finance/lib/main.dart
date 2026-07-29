@@ -2,9 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:multi_currency_finance/controller/account/repository/hive/hive_account_entities.dart';
+import 'package:multi_currency_finance/controller/category/expense/repository/hive/hive_expense_category_entities.dart';
+import 'package:multi_currency_finance/controller/category/income/repository/hive/hive_income_category_entities.dart';
 import 'package:multi_currency_finance/controller/currency/repository/hive/hive_currency_entities.dart';
 import 'package:multi_currency_finance/controller/transaction/repository/hive/hive_transaction_entities.dart';
 import 'package:multi_currency_finance/view/account/accounts_screen.dart';
+import 'package:multi_currency_finance/view/reports/reports_screen.dart';
+import 'package:multi_currency_finance/view/settings/settings_screen.dart';
 import 'package:multi_currency_finance/view/transaction/transactions_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -22,6 +26,8 @@ void main() async {
   Hive.registerAdapter(CurrencyHiveObjectAdapter());
   Hive.registerAdapter(TransactionHiveObjectAdapter());
   Hive.registerAdapter(TransactionTypeHiveObjectAdapter());
+  Hive.registerAdapter(ExpenseCategoryHiveObjectAdapter());
+  Hive.registerAdapter(IncomeCategoryHiveObjectAdapter());
 
   runApp(const MyApp());
 }
@@ -55,7 +61,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   int _page = 0;
   final PageController _pageController = PageController();
   // final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
-  final List<Widget> _screens = [AccountsScreen(), TransactionsScreen()];
+  final List<Widget> _screens = [AccountsScreen(), TransactionsScreen(), ReportsScreen(), SettingsScreen()];
 
   @override
   void initState() {
@@ -103,6 +109,14 @@ class BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Transactions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart_rounded),
+            label: 'Reports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_rounded),
+            label: 'Settings',
           ),
         ],
       ),

@@ -78,4 +78,16 @@ class HiveAccountRepository implements IAccountRepository {
 
     return Result.success(id);
   }
+  
+  @override
+  Future<Result<int>> clear() async {
+    final box = await Hive.openBox<AccountHiveObject>(dbName);
+
+    final int length = box.length;
+
+    await box.clear();
+
+    return Result.success(length);
+  }
+
 }

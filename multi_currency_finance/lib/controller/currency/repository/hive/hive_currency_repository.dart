@@ -80,5 +80,16 @@ class HiveCurrencyRepository implements ICurrencyRepository {
 
     return Result.success(id);
   }
+  
+  @override
+  Future<Result<int>> clear() async {
+    final box = await Hive.openBox<CurrencyHiveObject>(dbName);
+
+    final int length = box.length;
+
+    await box.clear();
+
+    return Result.success(length);
+  }
 
 }

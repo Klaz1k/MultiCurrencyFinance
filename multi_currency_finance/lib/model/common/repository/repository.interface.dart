@@ -5,4 +5,5 @@ abstract interface class IRepository<T> {
   Future<Result<T>> findById(String id);
   Future<Result<String>> save(T entity);
   Future<Result<String>> delete(String id);
+  Future<Result<int>> clear();
 }

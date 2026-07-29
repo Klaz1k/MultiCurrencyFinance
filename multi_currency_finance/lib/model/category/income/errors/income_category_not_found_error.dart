@@ -1,0 +1,1 @@
+class IncomeCategoryNotFoundError extends Error {}
